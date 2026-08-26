@@ -1,0 +1,72 @@
+generated: '2026-08-26'
+method: searched
+source: https://developers.momo.vn/v3/docs/app-center/development-guideline/open-capabilities/consents-request/consentsRequest/
+docs: https://developers.momo.vn/v3/docs/app-center/development-guideline/open-capabilities/permissions/
+api: momo:mini-app-open-api
+model: consent-roles
+note: >-
+  MoMo's Mini App Open Platform is described in its own documentation as
+  "based on the industry standard OAuth2.0 authorization mechanism", but it does
+  NOT publish RFC 6749 scope strings. What it publishes instead is a consent-role
+  vocabulary: a Mini App calls MiniApi.requestUserConsents with an array of
+  permission roles, MoMo renders a bottom sheet, and the user grants or denies
+  each role individually. The resulting authCode/accessToken carries whatever the
+  user granted. These roles are the closest thing MoMo has to scopes and are
+  recorded here verbatim from the Consents Request page.
+  The dedicated "Permissions" page on the same site is published but EMPTY — its
+  entire body reads "( to be updated )" — so there is no authoritative permission
+  reference beyond this list.
+scope_count: 6
+scopes:
+- name: phone
+  label: Phone Number
+  description: The end user's MoMo-registered phone number.
+- name: name
+  label: Full Name
+  description: The end user's full name.
+- name: email
+  label: Email Address
+  description: The end user's email address.
+- name: gender
+  label: User's Gender
+  description: The end user's gender.
+- name: dateOfBirth
+  label: User's date of birth
+  description: The end user's date of birth.
+- name: identity
+  label: User's MoMo KYC status
+  description: >-
+    The end user's KYC verification status (documented response values include
+    UNCONFIRM). Requested via the role key `identity`; MoMo's own example code
+    on the same page passes `identify`, an inconsistency in the published docs
+    that is recorded here rather than silently corrected.
+request_shape:
+  function: MiniApi.requestUserConsents
+  parameter: 'permissions: Array<{ role: String, require?: boolean }>'
+  required_flag: >-
+    Setting require:true on a role prevents the user turning that role off in the
+    consent sheet — the Mini App can force a field to be all-or-nothing.
+response_shape:
+  since_platform: 3.1.10
+  fields:
+    data: The granted values, keyed by role
+    status: Per-role grant status (granted) or a top-level "cancelled"
+  note: >-
+    Before MoMo Platform 3.1.10 the granted values were returned flat and a
+    cancelled consent returned an empty object, indistinguishable from a denial.
+    The 3.1.10 change split data from status specifically to make cancel, deny and
+    accept distinguishable — MoMo documents the compatibility shim
+    (response?.name || response?.data?.name) in its own changelog.
+other_apis:
+  aio-payment-gateway: >-
+    No scopes. Authentication is a partnerCode/accessKey/secretKey triple with an
+    HMAC-SHA256 request signature; capability is governed by which payment
+    solutions the merchant is approved for in the M4B portal, not by a token scope.
+  business-page-openapi: >-
+    No scope strings, but a real permission-group model: the X-API-KEY is bound to
+    the groups granted in the MoMo for Business portal — page management and
+    setup, content (posts, ratings, reviews), messaging (templates, segmentation,
+    automated notifications), reporting and customer care.
+  voucher-distribution: >-
+    No scopes. clientId/clientSecret exchanged for a 24-hour bearer token with no
+    scope parameter documented.

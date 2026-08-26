@@ -1,0 +1,330 @@
+generated: '2026-08-26'
+method: searched
+source: https://developers.momo.vn/v3/docs/payment/api/other/postman/
+note: Fourteen public Postman collections that MoMo links from its own 'Postman - Setup and Collections'
+  documentation page. Each was fetched anonymously from https://www.postman.com/collections/<uid> (HTTP
+  200, valid Postman collection v2.0.0 JSON) on 2026-08-26 and saved verbatim. These are the closest thing
+  MoMo publishes to a machine-readable contract for the AIO v2 gateway — there is no OpenAPI, Swagger,
+  AsyncAPI, protobuf or WSDL anywhere on its hosts (see well-known/momo-well-known.yml for the probe log).
+  Environment variables in the collections carry MoMo's published test-merchant credentials; those values
+  have been passed through the pipeline secret sanitizer.
+workspace_id: e618a0b3-fe47-47c5-825f-3d4bb54ae8f5
+collection_count: 14
+operation_count: 67
+environments:
+  test: https://test-payment.momo.vn
+  production: https://payment.momo.vn
+collections:
+- file: momo-1-momo-e-wallet-payments-one-time.json
+  name: 1 - MoMo E-Wallet Payments (One-time)
+  collection_uid: 159d120b-86d5-4542-939c-7d560d44f5cb
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-159d120b-86d5-4542-939c-7d560d44f5cb
+  raw_url: https://www.postman.com/collections/22886510-159d120b-86d5-4542-939c-7d560d44f5cb
+  request_count: 4
+  requests:
+  - name: Create - Khởi tạo giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Confirm Payment - Xác nhận/Huỷ giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/confirm'
+  - name: Query status - Xem trạng thái giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/query'
+  - name: Refund - Hoàn tiền giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/refund'
+- file: momo-2-momo-e-wallet-payments-tokenization-account-binding.json
+  name: 2 - MoMo E-Wallet Payments (Tokenization - Account Binding)
+  collection_uid: d58378e1-11b2-45ce-a181-6314507d773a
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-d58378e1-11b2-45ce-a181-6314507d773a
+  raw_url: https://www.postman.com/collections/22886510-d58378e1-11b2-45ce-a181-6314507d773a
+  request_count: 7
+  requests:
+  - name: Step 1 - Create - Khởi tạo giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Step 2 - Binding Lấy AES Token từ callbackToken
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/bind'
+  - name: Step 3 - Pay with token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/pay'
+  - name: Step 4 - Verify OTP and Payment - 2FA Flow
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/verify'
+  - name: Step 5 - Confirm Payment - Xác nhận/Huỷ giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/confirm'
+  - name: Callback token inquiry - Query lại callbackToken
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/cbQuery'
+  - name: Delete token - Xóa token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/delete'
+- file: momo-3-momo-e-wallet-payments-tokenization-subscription.json
+  name: 3 - MoMo E-Wallet Payments (Tokenization - Subscription)
+  collection_uid: 9938358a-d7d8-4086-9818-3bd19b05e0c2
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-9938358a-d7d8-4086-9818-3bd19b05e0c2
+  raw_url: https://www.postman.com/collections/22886510-9938358a-d7d8-4086-9818-3bd19b05e0c2
+  request_count: 7
+  requests:
+  - name: Step 1 - Create
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Step 2 - Get AES Token from callbackToken
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/subscription/create'
+  - name: Step3 - Pay using token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/subscription/pay'
+  - name: Step 4 - Confirm Payment - Xác nhận/Huỷ giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/confirm'
+  - name: Pause/Cancel subscription token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/subscription/manage'
+  - name: Reactive subscription token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/subscription/manage'
+  - name: Callback token inquiry - Query lại callbackToken
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/subscription/cbQuery'
+- file: momo-4-pay-later.json
+  name: 4 - Pay Later
+  collection_uid: cf1820d5-4cec-4758-8a8c-e796f8602d4f
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-cf1820d5-4cec-4758-8a8c-e796f8602d4f
+  raw_url: https://www.postman.com/collections/22886510-cf1820d5-4cec-4758-8a8c-e796f8602d4f
+  request_count: 4
+  requests:
+  - name: Create
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Confirm Payment - Xác nhận/Huỷ giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/confirm'
+  - name: Query status - Xem trạng thái giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/query'
+  - name: Refund - Hoàn tiền giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/refund'
+- file: momo-5-local-atm-card-payments-one-time.json
+  name: 5 - Local ATM Card Payments (One-time)
+  collection_uid: 1d7709af-bda6-4cb9-bd66-b2e17a49ad4c
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-1d7709af-bda6-4cb9-bd66-b2e17a49ad4c
+  raw_url: https://www.postman.com/collections/22886510-1d7709af-bda6-4cb9-bd66-b2e17a49ad4c
+  request_count: 3
+  requests:
+  - name: Create - Khởi tạo giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Query status - Xem trạng thái giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/query'
+  - name: Refund - Hoàn tiền giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/refund'
+- file: momo-6-local-atm-card-payments-recurring.json
+  name: 6 - Local ATM Card Payments (Recurring)
+  collection_uid: c52ac834-a50c-4a1e-94ea-af5219f86a12
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-c52ac834-a50c-4a1e-94ea-af5219f86a12
+  raw_url: https://www.postman.com/collections/22886510-c52ac834-a50c-4a1e-94ea-af5219f86a12
+  request_count: 5
+  requests:
+  - name: Step 1 - Create - Khởi tạo giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Step 2 - Binding Lấy AES Token từ callbackToken
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/bind'
+  - name: Step 3 - Pay with token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/pay'
+  - name: Callback token inquiry - Query lại callbackToken
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/cbQuery'
+  - name: Delete token - Xóa token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/delete'
+- file: momo-7-local-atm-non-hosted-payments.json
+  name: 7 - Local ATM Non Hosted Payments
+  collection_uid: caf5b7d2-62eb-488d-b0ff-49784f4dc769
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-caf5b7d2-62eb-488d-b0ff-49784f4dc769
+  raw_url: https://www.postman.com/collections/22886510-caf5b7d2-62eb-488d-b0ff-49784f4dc769
+  request_count: 7
+  requests:
+  - name: Initiate
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Pay
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/pay'
+  - name: Binding
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/bind'
+  - name: Pay By Token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/pay'
+  - name: Delete Token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/delete'
+  - name: Refund
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/refund'
+  - name: CallbackToken Inquiry
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/cbQuery'
+- file: momo-8-credit-card-payments-one-time.json
+  name: 8 - Credit Card Payments (One-time)
+  collection_uid: 940c4fc0-c77b-4e22-9e62-0229c72f483d
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-940c4fc0-c77b-4e22-9e62-0229c72f483d
+  raw_url: https://www.postman.com/collections/22886510-940c4fc0-c77b-4e22-9e62-0229c72f483d
+  request_count: 4
+  requests:
+  - name: Create - Khởi tạo giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Confirm Payment - Xác nhận/Huỷ giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/confirm'
+  - name: Query status - Xem trạng thái giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/query'
+  - name: Refund - Hoàn tiền giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/refund'
+- file: momo-9-1-apple-pay.json
+  name: 9.1 - Apple Pay
+  collection_uid: 0da08f0f-7bbd-4de0-a6ed-77df78595718
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-0da08f0f-7bbd-4de0-a6ed-77df78595718
+  raw_url: https://www.postman.com/collections/22886510-0da08f0f-7bbd-4de0-a6ed-77df78595718
+  request_count: 4
+  requests:
+  - name: Create - Khởi tạo giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Confirm Payment - Xác nhận/Huỷ giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/confirm'
+  - name: Query status - Xem trạng thái giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/query'
+  - name: Refund - Hoàn tiền giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/refund'
+- file: momo-9-2-single-disbursement.json
+  name: 9.2 Single Disbursement
+  collection_uid: ad1b09b3-5b5e-4498-8fac-e00d1dcfba67
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-ad1b09b3-5b5e-4498-8fac-e00d1dcfba67
+  raw_url: https://www.postman.com/collections/22886510-ad1b09b3-5b5e-4498-8fac-e00d1dcfba67
+  request_count: 4
+  requests:
+  - name: Disbursement To Wallet
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/disbursement/pay'
+  - name: Disbursement To Bank
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/disbursement/pay'
+  - name: Check Wallet Status
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/disbursement/verify'
+  - name: Get Balanace
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/disbursement/balance'
+- file: momo-9-3-batch-disbursement.json
+  name: 9.3 - Batch Disbursement
+  collection_uid: f6dbc927-b1b7-4541-9bb2-96fd8b919983
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-f6dbc927-b1b7-4541-9bb2-96fd8b919983
+  raw_url: https://www.postman.com/collections/22886510-f6dbc927-b1b7-4541-9bb2-96fd8b919983
+  request_count: 5
+  requests:
+  - name: Create Batch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/disbursement/batch/create'
+  - name: Create batch With Large Items
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/disbursement/batch/create'
+  - name: Inititate
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Query
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/disbursement/batch/query'
+  - name: Pay
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/disbursement/batch/pay'
+- file: momo-9-4-collection-link.json
+  name: 9.4 - Collection Link
+  collection_uid: 2ffe0720-6bb3-46f5-b1a1-69ad16ab940b
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-2ffe0720-6bb3-46f5-b1a1-69ad16ab940b
+  raw_url: https://www.postman.com/collections/22886510-2ffe0720-6bb3-46f5-b1a1-69ad16ab940b
+  request_count: 4
+  requests:
+  - name: Create - Khởi tạo giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Confirm Payment - Xác nhận/Huỷ giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/confirm'
+  - name: Query status - Xem trạng thái giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/query'
+  - name: Refund - Hoàn tiền giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/refund'
+- file: momo-9-5-quick-pay-pos-scanner.json
+  name: 9.5 - Quick Pay - POS Scanner
+  collection_uid: a43c10ce-38ba-4e49-beea-0223789e0237
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-a43c10ce-38ba-4e49-beea-0223789e0237
+  raw_url: https://www.postman.com/collections/22886510-a43c10ce-38ba-4e49-beea-0223789e0237
+  request_count: 4
+  requests:
+  - name: Pay POS
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/pos'
+  - name: Confirm Payment - Xác nhận/Huỷ giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/confirm'
+  - name: Query status - Xem trạng thái giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/query'
+  - name: Refund - Hoàn tiền giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/refund'
+- file: momo-9-credit-card-payments-recurring.json
+  name: 9 - Credit Card Payments (Recurring)
+  collection_uid: eb7c6723-3ae0-4868-9d62-56729fe36f68
+  schema: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+  run_url: https://app.getpostman.com/run-collection/22886510-eb7c6723-3ae0-4868-9d62-56729fe36f68
+  raw_url: https://www.postman.com/collections/22886510-eb7c6723-3ae0-4868-9d62-56729fe36f68
+  request_count: 5
+  requests:
+  - name: Step 1 - Create - Khởi tạo giao dịch
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/create'
+  - name: Step 2 - Binding Lấy AES Token từ callbackToken
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/bind'
+  - name: Step 3 - Pay with token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/pay'
+  - name: Callback token inquiry - Query lại callbackToken
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/cbQuery'
+  - name: Delete token - Xóa token
+    method: POST
+    url: '{{paygate}}/v2/gateway/api/tokenization/delete'

@@ -64,5 +64,36 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Momo is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://www.hiive.com/securities/momo-stock
+MoMo is Vietnam's largest mobile-money and e-wallet platform, operated by Online Mobile Services
+Joint Stock Company ("M_Service"), founded in 2007 and licensed by the State Bank of Vietnam for
+e-wallet, money transfer and collection/disbursement services.
+
+This repository profiles the four public APIs MoMo publishes at
+[developers.momo.vn](https://developers.momo.vn/):
+
+- **All-in-One (AIO v2) Payment Gateway** — `https://payment.momo.vn/v2/gateway/api`
+- **Business Page OpenAPI** — `https://business.momo.vn/api`
+- **Voucher Distribution API** — `https://business.momo.vn/api`
+- **Mini App Open API** — `https://openapi.momo.vn/gateway/open/v1`
+
+**MoMo publishes no OpenAPI, AsyncAPI, protobuf or WSDL.** The nearest machine-readable contract is
+a set of **14 public Postman collections** (67 requests), which MoMo links from its own docs and
+which are saved verbatim in [`postman/`](postman/). Everything else in this repository is either
+searched from MoMo's own documentation or derived from those collections; nothing is invented.
+
+Notable findings from the 2026-08-26 pass:
+
+- **Idempotency is real and documented** — `requestId` in the request body, unique per company
+  account, honoured for at least 31 days, HTTP 422 + `resultCode` 7000 on a duplicate in flight.
+- **Reversibility is documented** — cancel-before-capture and full/partial refund, with published
+  amount bounds. **Disbursements are not reversible**; MoMo publishes no recall operation.
+- **No status page, no SLA, no deprecation policy, no rate limits.** A withdrawn API version is
+  discovered at runtime via `resultCode` 12.
+- **No `/.well-known/` documents on any host** (64 probes across 8 hosts) and **no MCP server**.
+- **PCI DSS v4.0** is claimed on MoMo's own newsroom; the first-party PHP and Java SDKs are stale
+  (untagged since 2022 and version 1.0 from 2019 respectively), while the Mini App component
+  packages on npm are actively released.
+
+- https://www.momo.vn/
+- https://developers.momo.vn/
+- https://github.com/momo-wallet

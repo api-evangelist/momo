@@ -1,0 +1,157 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  postman/ (14 first-party MoMo Postman collections, 67 requests) and the AIO v2
+  operation reference under https://developers.momo.vn/v3/docs/payment/api/ —
+  plus a negative search of developers.momo.vn (212-URL sitemap), momo.vn,
+  business.momo.vn, github.com/momo-wallet, npm and PyPI.
+name: MoMo AIO v2 MCP (candidate)
+status: candidate
+description: >-
+  MoMo does NOT ship an MCP server. There is no hosted /mcp endpoint on any MoMo
+  host (probed payment.momo.vn, test-payment.momo.vn, openapi.momo.vn,
+  api.momo.vn, business.momo.vn, developers.momo.vn and www.momo.vn on
+  2026-08-26), no MCP package under any MoMo-owned npm scope, no MCP mention
+  anywhere in the developer documentation, and no /.well-known/
+  oauth-protected-resource anywhere. A third-party listing exists on an MCP
+  marketplace under the name "momo-vn"; it is not MoMo's and is not recorded as
+  a MoMo surface. The tools below are a CANDIDATE surface derived from MoMo's
+  own published Postman operations — what an MCP server for MoMo would expose,
+  not something MoMo publishes. No `type: MCPServer` pointer is emitted in
+  apis.yml, because emitting one would assert an agent surface that does not
+  exist.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: derived
+probes:
+  method: 'POST {"jsonrpc":"2.0","id":1,"method":"tools/list"} with Accept: application/json, text/event-stream'
+  date: '2026-08-26'
+  results:
+  - url: https://payment.momo.vn/mcp
+    status: 404
+  - url: https://test-payment.momo.vn/mcp
+    status: 404
+  - url: https://openapi.momo.vn/mcp
+    status: 404
+  - url: https://api.momo.vn/mcp
+    status: 404
+  - url: https://developers.momo.vn/mcp
+    status: 404
+  - url: https://business.momo.vn/mcp
+    status: 405
+    note: Next.js SPA rejects the method; a GET on the same path returns the site's catch-all HTML shell, not an MCP response.
+  - url: https://www.momo.vn/mcp
+    status: 405
+    note: same — method not allowed on the marketing SPA, not an MCP endpoint.
+  - url: https://mcp.momo.vn/
+    status: 0
+    note: DNS does not resolve.
+agent_readiness_note: >-
+  The blocker for any MoMo MCP server is not the tool list, it is the auth
+  model: every AIO v2 call must be HMAC-SHA256 signed over an operation-specific,
+  alphabetically ordered field string using a secretKey that must never leave the
+  merchant's server. An MCP server for MoMo has to hold that secret and sign on
+  the agent's behalf, which makes it a server-side deployment rather than a
+  client-side connector.
+tools:
+- name: create_payment
+  description: Create a MoMo payment request and receive payUrl, deeplink and qrCodeUrl.
+  source_operation: POST /v2/gateway/api/create
+  write: true
+  reversible_by: confirm (cancel) before capture; refund after capture
+- name: confirm_payment
+  description: Capture or cancel a previously authorized (resultCode 9000) transaction.
+  source_operation: POST /v2/gateway/api/confirm
+  write: true
+  parameters_note: requestType is capture or cancel
+- name: query_transaction
+  description: Read the current status of a transaction by orderId and requestId.
+  source_operation: POST /v2/gateway/api/query
+  write: false
+- name: refund_payment
+  description: Full or partial refund of a captured transaction, optionally per line item.
+  source_operation: POST /v2/gateway/api/refund
+  write: true
+  reversible: false
+- name: query_refund
+  description: Read back every refund attempt against an order, per item.
+  source_operation: POST /v2/gateway/api/refund/query
+  write: false
+- name: bind_payment_token
+  description: Exchange a callbackToken for a durable payment token (account binding).
+  source_operation: POST /v2/gateway/api/tokenization/bind
+  write: true
+  reversible_by: tokenization/delete
+- name: pay_with_token
+  description: Charge a stored payment token.
+  source_operation: POST /v2/gateway/api/tokenization/pay
+  write: true
+- name: verify_token_otp
+  description: Verify OTP for a 2FA tokenised payment.
+  source_operation: POST /v2/gateway/api/tokenization/verify
+  write: true
+- name: query_callback_token
+  description: Re-query a callbackToken.
+  source_operation: POST /v2/gateway/api/tokenization/cbQuery
+  write: false
+- name: delete_payment_token
+  description: Revoke a stored payment token.
+  source_operation: POST /v2/gateway/api/tokenization/delete
+  write: true
+- name: create_subscription_token
+  description: Create a subscription token from a callbackToken.
+  source_operation: POST /v2/gateway/api/subscription/create
+  write: true
+- name: pay_subscription
+  description: Charge a subscription token.
+  source_operation: POST /v2/gateway/api/subscription/pay
+  write: true
+- name: manage_subscription
+  description: Pause, cancel or reactivate a subscription token.
+  source_operation: POST /v2/gateway/api/subscription/manage
+  write: true
+- name: pay_non_hosted_atm
+  description: Submit a non-hosted local ATM card payment.
+  source_operation: POST /v2/gateway/api/pay
+  write: true
+- name: pay_pos
+  description: Quick Pay POS scanner payment against a customer-presented code.
+  source_operation: POST /v2/gateway/api/pos
+  write: true
+- name: disburse
+  description: Disburse funds to a MoMo wallet or a bank account.
+  source_operation: POST /v2/gateway/api/disbursement/pay
+  write: true
+  reversible: false
+  consequence: irreversible — MoMo publishes no recall or clawback operation
+- name: verify_disbursement_target
+  description: Check whether a wallet can receive a disbursement.
+  source_operation: POST /v2/gateway/api/disbursement/verify
+  write: false
+- name: get_disbursement_balance
+  description: Read the disbursement source balance before paying out.
+  source_operation: POST /v2/gateway/api/disbursement/balance
+  write: false
+- name: create_disbursement_batch
+  description: Create a batch disbursement.
+  source_operation: POST /v2/gateway/api/disbursement/batch/create
+  write: true
+- name: query_disbursement_batch
+  description: Read the status of a disbursement batch.
+  source_operation: POST /v2/gateway/api/disbursement/batch/query
+  write: false
+- name: pay_disbursement_batch
+  description: Execute a previously created disbursement batch.
+  source_operation: POST /v2/gateway/api/disbursement/batch/pay
+  write: true
+  reversible: false
+tool_count: 21
+crosswalk: null
+crosswalk_note: >-
+  No mcp/momo-tool-crosswalk.yml is emitted. The crosswalk binds MCP tools to
+  backing OpenAPI operationIds; MoMo publishes neither an MCP server nor an
+  OpenAPI, so there is nothing on either side of the binding to record.

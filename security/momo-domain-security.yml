@@ -1,0 +1,28 @@
+generated: '2026-08-26'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: www.momo.vn
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov  8 13:11:56 2026 GMT
+  hsts: false
+- host: developers.momo.vn
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Jan  9 07:27:13 2027 GMT
+  hsts: true
+  hsts_max_age: 15768000
+- host: payment.momo.vn
+  https: true
+  tls_version: TLSv1.2
+  cert_expires: Jan  9 07:27:13 2027 GMT
+  hsts: true
+  hsts_max_age: 15768000
+domains:
+- domain: momo.vn
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: none

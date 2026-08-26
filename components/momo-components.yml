@@ -1,0 +1,54 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/component-kits/,
+  https://www.npmjs.com/org/momo-kits
+note: >-
+  MoMo publishes a first-party client-side component library — Component Kits —
+  for building Mini Apps that render inside the MoMo app. These are React Native
+  components, not web embeds: there is no hosted checkout iframe library, no web
+  drop-in element and no embedded dashboard product. The payment gateway's
+  "embedded" surface is a redirect/deeplink to test-payment.momo.vn or
+  payment.momo.vn plus a QR code, not a mountable component.
+families:
+- id: component-kits-v2
+  name: Component Kits v2
+  for: Mini App v3.1
+  loader: '@momo-kits/core'
+  install: npm install @momo-kits/core
+  runtime: React Native
+  version: 0.152.1-beta.2
+  published: '2025-11-14'
+  members_note: >-
+    The @momo-kits npm organisation publishes ~50 component packages. Actively
+    released members observed on 2026-08-26 include native-kits (ComposeKit,
+    0.162.34, 2026-08-11), foundation (0.158.1-beta.2, 2026-03-31), qrcode,
+    camerakit, calendar, date-picker, carousel, tab-view, webview, uploader,
+    auto-complete, rating, stepper, suggest-action, anti-screenshot and doctor.
+    A second tier (toast, chart, radio, voucher, money, scanner, film, bank,
+    lottie, sticker, transaction and others) is frozen at 0.0.48-rc.4 / 0.0.36
+    from 2022.
+  components_documented:
+    basic: [Text, Button, Popup, Color, Icon, Spacing]
+    advanced: [Currency Input, Calculator Keyboard, Film Components package, Data Picker, Guide, Progress, InfoTable]
+- id: component-kits-v1
+  name: Component Kits v1
+  for: Mini App v3.0
+  loader: '@momo-platform/component-kits'
+  install: npm install @momo-platform/component-kits
+  runtime: React Native
+  version: 1.3.26
+  published: '2022-05-23'
+  status: superseded by Component Kits v2
+mobile_sdks:
+  note: >-
+    Distinct from Component Kits — the native merchant SDK that opens the MoMo
+    app from a partner's own iOS/Android app.
+  ios: 'MomoiOSSwiftSdk (CocoaPods from git branch release_swift / release_objc)'
+  repo: https://github.com/momo-wallet/mobile-sdk
+  packages: packages/momo-packages.yml
+not_published:
+- No web (browser) component library — Component Kits are React Native only.
+- No hosted checkout iframe or drop-in element for websites.
+- No embedded merchant dashboard or reporting component.
+- No CDN/script-tag distribution; every component is an npm package.

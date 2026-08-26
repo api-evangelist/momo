@@ -1,0 +1,291 @@
+generated: '2026-08-26'
+method: probed
+source: direct HTTPS probe of every MoMo host named in apis.yml on 2026-08-26
+hit_count: 0
+note: MoMo serves NO /.well-known/ discovery documents on any host. Eight hosts were probed for eight
+  well-known paths each (64 probes). www.momo.vn, developers.momo.vn, test-payment.momo.vn, openapi.momo.vn
+  and api.momo.vn return honest 404s. payment.momo.vn — the production API host — answers 403 from its
+  edge for every /.well-known/ path while returning 404 for ordinary unknown paths, so the well-known
+  namespace there is refused rather than absent. business.momo.vn and uat-business.momo.vn are Next.js
+  single-page apps that answer 200 with the SAME 20,652-byte HTML shell for every path, including a control
+  path that cannot exist — those 200s are soft-404s and are recorded as misses. NO WellKnown, SecurityTxt
+  or AgentCard pointer is emitted in apis.yml, because a pointer would assert MoMo serves a surface it
+  does not.
+also_probed:
+  paths:
+  - /openapi.json
+  - /swagger.json
+  - /llms.txt
+  result: same outcome on every host — 404 everywhere except the two SPA catch-alls, which returned the
+    HTML shell.
+hosts:
+- host: https://www.momo.vn
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  hit_count: 0
+- host: https://developers.momo.vn
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  hit_count: 0
+- host: https://payment.momo.vn
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    file: null
+    note: edge/WAF refused the probe; no document observed
+  - path: /.well-known/openid-configuration
+    status: 403
+    file: null
+    note: edge/WAF refused the probe; no document observed
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+    file: null
+    note: edge/WAF refused the probe; no document observed
+  - path: /.well-known/oauth-protected-resource
+    status: 403
+    file: null
+    note: edge/WAF refused the probe; no document observed
+  - path: /.well-known/api-catalog
+    status: 403
+    file: null
+    note: edge/WAF refused the probe; no document observed
+  - path: /.well-known/ai-plugin.json
+    status: 403
+    file: null
+    note: edge/WAF refused the probe; no document observed
+  - path: /.well-known/agent-card.json
+    status: 403
+    file: null
+    note: edge/WAF refused the probe; no document observed
+  - path: /.well-known/agent.json
+    status: 403
+    file: null
+    note: edge/WAF refused the probe; no document observed
+  hit_count: 0
+- host: https://test-payment.momo.vn
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  hit_count: 0
+- host: https://business.momo.vn
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/api-catalog
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  hit_count: 0
+  soft_404_control:
+    path: /CONTROL-404-PROBE-abc123
+    status: 200
+    content_type: text/html
+    bytes_read: 4000
+    note: Identical HTML body (20,652 bytes served in full) is returned for every unknown path, so a 200
+      on this host proves nothing.
+- host: https://uat-business.momo.vn
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/api-catalog
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    note: 'soft-404: host answers 200 with the same SPA HTML shell for every path, including a control
+      path that cannot exist. Not a document.'
+  hit_count: 0
+  soft_404_control:
+    path: /CONTROL-404-PROBE-abc123
+    status: 200
+    content_type: text/html
+    bytes_read: 4000
+    note: Identical HTML body (20,652 bytes served in full) is returned for every unknown path, so a 200
+      on this host proves nothing.
+- host: https://openapi.momo.vn
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  hit_count: 0
+- host: https://api.momo.vn
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+  hit_count: 0

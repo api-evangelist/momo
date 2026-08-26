@@ -1,0 +1,92 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/mini-api/changelog/,
+  https://developers.momo.vn/v3/docs/app-center/development-guideline/development-tools/mini-cli/changelog/
+note: >-
+  MoMo publishes dated changelogs for exactly two things — the Mini App CLI and
+  the Mini API / MoMo Platform — and BOTH stopped in 2022. There is no changelog,
+  release-notes page or version-history page for the AIO v2 payment gateway, the
+  Business Page OpenAPI or the Voucher Distribution API, which are the three
+  surfaces most integrators actually depend on. Undated in-page notes are the
+  only other signal (e.g. the production IP allowlist carries "New Update from
+  11 Sep 2024" and "New Update from 10 Apr 2026" annotations).
+scheme: semver-ish (0.x.y for Mini API and CLI; MoMo Platform uses its own 3.x/4.x build numbering)
+feeds:
+  rss: null
+  atom: null
+  json: null
+changelogs:
+- id: mini-cli
+  name: Mini App CLI
+  package: '@momo-miniapp/cli'
+  url: https://developers.momo.vn/v3/docs/app-center/development-guideline/development-tools/mini-cli/changelog/
+  current_version: 0.0.79
+  last_entry: '2022-05-19'
+  entry_count: 4
+  entries:
+  - version: 0.0.79
+    date: '2022-05-19'
+    breaking: true
+    highlights:
+    - Support selecting the version and environment of the MoMo Platform
+    - Older CLI versions are no longer supported and must be updated
+  - version: 0.0.78
+    date: '2022-03-25'
+    breaking: false
+    highlights:
+    - 'New: `link` command, requesting Mini App Center share authentication from the CLI'
+  - version: 0.0.77
+    date: '2022-03-12'
+    breaking: false
+    highlights:
+    - Fixed the login flow and improved its security
+    - Fixed the build flow
+  - version: '0.0.74'
+    date: '2022-03-03'
+    breaking: false
+    highlights:
+    - Able to install MoMo Platform in development
+    - Recommended commands
+- id: mini-api
+  name: Mini API / MoMo Platform
+  url: https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/mini-api/changelog/
+  current_version: 0.1.5
+  last_entry: '2022-08-31'
+  entry_count: 3
+  entries:
+  - version: 0.1.5
+    date: '2022-08-31'
+    component: Mini API
+    breaking: false
+    requires: MoMo Platform 4.0.4 or higher, deploymentTarget 51
+    highlights:
+    - 'Added showToastSuggestion'
+    - 'Added hideToastSuggestion'
+  - version: 3.1.10
+    date: '2022-03-31'
+    component: MoMo Platform
+    breaking: true
+    highlights:
+    - >-
+      requestUserConsents and getUserConsents responses restructured into
+      {data, status} so user-accept, user-deny and user-cancel are
+      distinguishable; before 3.1.10 a cancel and a denial both returned {}.
+    - MoMo documents a compatibility shim rather than a migration deadline.
+  - version: 0.1.4
+    date: '2022-02-25'
+    component: Mini API
+    breaking: false
+    requires: MoMo Platform 3.1.7 or higher, deploymentTarget 37
+    highlights:
+    - 'Added getUserConsents to read user info after permissions were granted via requestUserConsents'
+gaps:
+- surface: momo:aio-payment-gateway
+  changelog_published: false
+- surface: momo:business-page-openapi
+  changelog_published: false
+- surface: momo:voucher-distribution
+  changelog_published: false
+- surface: SDKs
+  changelog_published: false
+  note: 'No CHANGELOG.md in any momo-wallet GitHub repository; no GitHub Releases published on any of the five repos.'

@@ -1,0 +1,145 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/payment/api/other/signature/,
+  https://developers.momo.vn/v3/docs/payment/api/other/RSA/,
+  https://developers.momo.vn/v3/docs/payment/api/other/AES/,
+  https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/,
+  https://developers.momo.vn/v3/docs/business-page/start/,
+  https://developers.momo.vn/v3/docs/voucher-distribution/integration-documentation/,
+  https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/api-specifications/
+note: >-
+  Derived from MoMo's published documentation, not from a securitySchemes block —
+  MoMo publishes no OpenAPI. Each of MoMo's four public APIs uses a DIFFERENT
+  authentication model, which is the single most important fact for an integrator
+  or an agent: credentials, header names and signing algorithms do not carry
+  across them.
+credential_issuance:
+  portal: https://business.momo.vn/
+  portal_name: MoMo for Business (M4B)
+  process: >-
+    Register a merchant profile, integrate against the test environment, complete
+    UAT, verify the account, then request production credentials. Production keys
+    are issued after MoMo review, not self-serve.
+  environments_have_separate_keys: true
+schemes:
+- id: aio-hmac-signature
+  api: momo:aio-payment-gateway
+  type: signature
+  scheme: HMAC-SHA256
+  location: body
+  fields:
+    partnerCode: Business account's unique identity
+    accessKey: Server access key
+    secretKey: Used to create the digital signature (never transmitted)
+    signature: HMAC-SHA256 over an alphabetically ordered key1=value1&key2=value2 string
+  signed_payload: >-
+    A canonical string of the request's fields sorted a-z, e.g.
+    accessKey=$accessKey&amount=$amount&description=$description&orderId=$orderId&partnerCode=$partnerCode&requestId=$requestId&transId=$transId
+    for the refund operation. The exact field list differs per operation and is
+    published on each operation's reference page.
+  transport: HTTPS POST, Content-Type application/json; charset=UTF-8
+  docs: https://developers.momo.vn/v3/docs/payment/api/other/signature/
+- id: aio-rsa
+  api: momo:aio-payment-gateway
+  type: encryption
+  scheme: RSA
+  purpose: >-
+    Encrypt sensitive payload fields (card data on the non-hosted ATM flow,
+    tokenisation binding data) with a MoMo-issued public key.
+  docs: https://developers.momo.vn/v3/docs/payment/api/other/RSA/
+- id: aio-aes
+  api: momo:aio-payment-gateway
+  type: encryption
+  scheme: AES
+  purpose: >-
+    Decrypt the AES-wrapped callbackToken returned by the tokenisation binding
+    and subscription flows.
+  docs: https://developers.momo.vn/v3/docs/payment/api/other/AES/
+- id: business-page-api-key
+  api: momo:business-page-openapi
+  type: apiKey
+  in: header
+  name: X-API-KEY
+  companion_field: Partner Id
+  scoped: true
+  scope_model: >-
+    The X-API-KEY is bound to the permission groups granted to the partner in the
+    MoMo for Business portal — page management and setup, content/posts, messaging,
+    reporting, customer care. A key only reaches the endpoints its granted groups
+    cover.
+  docs: https://developers.momo.vn/v3/docs/business-page/start/
+- id: voucher-oauth-client-credentials
+  api: momo:voucher-distribution
+  type: oauth2-like
+  flow: client_credentials
+  token_endpoint: POST {environment-domain}/authentication/login
+  request_fields:
+    clientId: Identifier provided by MoMo
+    clientSecret: Secret provided by MoMo
+  token_lifetime_ms: 86400000
+  token_lifetime_human: 24 hours
+  presented_as: Authorization header, Bearer token
+  header_note: >-
+    MoMo's own documentation names the header "Authentication" in the request
+    header table while describing it as a Bearer token in the prose — a genuine
+    ambiguity in the published contract, recorded here as-is rather than resolved.
+  additional_required_header:
+    X-Request-Id: Unique UUID per request
+  docs: https://developers.momo.vn/v3/docs/voucher-distribution/integration-documentation/
+- id: open-platform-jwt
+  api: momo:mini-app-open-api
+  type: oauth2
+  standard: 'Described by MoMo as "based on the industry standard OAuth2.0 authorization mechanism"'
+  grant: authorization-code-like
+  steps:
+  - The Mini App calls the getUserAuth Mini API to obtain an authCode (a long-lived JWT, 90-day expiry)
+  - The partner backend exchanges authCode for an accessToken (a short-lived JWT, 30-minute expiry) at GET /gateway/open/v1/oauth/accessToken
+  - The accessToken is presented as Authorization on subsequent Open API calls and must never be returned to the Mini App client
+  token_lifetimes:
+    authCode: 90 days
+    accessToken: 30 minutes
+  token_endpoint: https://openapi.momo.vn/gateway/open/v1/oauth/accessToken
+  test_token_endpoint: https://api.mservice.com.vn/openapi/gateway/open/v1/oauth/accessToken
+  docs: https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/catalog-functions/
+- id: open-platform-signature
+  api: momo:mini-app-open-api
+  type: signature
+  scheme: SHA256withRSA
+  header: OP-Signature
+  companion_header: M-Timestamp
+  construction: Base64UrlEncode(SHA256withRSA(data + M-Timestamp + openSecretKey))
+  keys:
+    openSecretKey: Unique per Mini App, provided by Open Platform, mixed into the signature
+    openPrivateKey: RSA private key used to sign requests and decrypt responses
+    openPublicKey: RSA public key used to verify responses and encrypt the AES symmetric key
+  key_rotation: >-
+    Newly generated keys are NOT applied immediately — they take effect
+    automatically after 7 days (168 hours), or right away if the developer
+    explicitly approves them in Mini App Center. A rollback to the previous keys
+    is available. This is a published, dated rotation policy, which is unusual.
+  payload_encryption:
+    scheme: AES symmetric key, RSA-wrapped
+    key_header: requestKey
+    flag_header: encrypted
+    get_parameter: data
+  docs: https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/open-api-security/
+network_controls:
+  ip_allowlist:
+    note: >-
+      MoMo publishes the source and destination IP addresses for both
+      environments so merchants can firewall them. This is a real, published
+      network control, not inferred.
+    sandbox:
+      incoming: [210.245.113.71]
+      outgoing: [118.69.210.244, 118.68.171.198]
+    production:
+      incoming: [118.69.212.158]
+      outgoing: [118.69.210.244, 116.103.110.134, 14.161.2.38]
+    source: https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/
+not_published:
+- No OpenAPI securitySchemes block exists — MoMo publishes no machine-readable spec.
+- No OAuth 2.0 discovery document (/.well-known/oauth-authorization-server) on any host.
+- No OpenID Connect discovery document on any host.
+- No mutual TLS requirement is documented.
+- No published scope strings for the Open Platform accessToken; access is governed by user consent roles (see scopes/momo-scopes.yml).

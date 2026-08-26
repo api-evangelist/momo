@@ -1,0 +1,130 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://github.com/momo-wallet (MoMo's own GitHub org, blog field set to
+  https://developers.momo.vn/), plus the registry metadata endpoints for each
+  package (packagist.org, search.maven.org, registry.npmjs.org) and MoMo's own
+  Component Kits and Mini App CLI installation pages on developers.momo.vn.
+note: >-
+  MoMo ships two distinct package families and they are in very different
+  states. The MERCHANT PAYMENT SDKs (PHP, Java, mobile) are stale: the PHP
+  package has never been tagged and its only branch was last touched in
+  February 2022, the Java artifact on Maven Central is still 1.0 from July 2019,
+  and the iOS/Android SDK is distributed from a git branch rather than a
+  registry. The MINI APP / Component Kits family on npm is actively released,
+  with @momo-kits/native-kits published in August 2026. There is no first-party
+  JavaScript/Node, Python, Go, Ruby, .NET or Rust client for the AIO v2 payment
+  gateway; the momo-wallet/payment repository ships example code in those
+  languages but publishes nothing to a registry.
+packages:
+- language: php
+  registry: packagist
+  name: mservice/payment
+  url: https://packagist.org/packages/mservice/payment
+  install: composer require mservice/payment
+  source_code: https://github.com/momo-wallet/php
+  official: true
+  version: dev-master
+  published: '2022-02-18'
+  note: >-
+    No tagged or stable release has ever been published — dev-master is the only
+    version Packagist knows about, last updated 2022-02-18. A consumer pinning
+    this dependency is pinning a moving branch.
+- language: java
+  registry: maven
+  name: io.github.momo-wallet:momopayment
+  url: https://central.sonatype.com/artifact/io.github.momo-wallet/momopayment
+  install: '<dependency><groupId>io.github.momo-wallet</groupId><artifactId>momopayment</artifactId><version>1.0</version></dependency>'
+  source_code: https://github.com/momo-wallet/java
+  official: true
+  version: '1.0'
+  published: '2019-07-16'
+  note: >-
+    Single version, published 2019-07-16 — seven years older than the AIO v2
+    gateway it wraps. The repository README still points integrators at an
+    ossrh snapshots repository.
+- language: swift
+  registry: cdn
+  name: MomoiOSSwiftSdk
+  url: https://github.com/momo-wallet/mobile-sdk
+  install: 'pod "MomoiOSSwiftSdk", :git => "https://github.com/momo-wallet/mobile-sdk.git", :branch => "release_swift", submodules: true'
+  source_code: https://github.com/momo-wallet/mobile-sdk
+  official: true
+  version: null
+  published: null
+  note: >-
+    Not published to CocoaPods trunk or any registry — the podspec is consumed
+    directly from a git branch (release_swift for Swift, release_objc for
+    Objective-C), so there is no version metadata to read and the dependency
+    floats with the branch. Repository last pushed 2023-01-26.
+- language: javascript
+  registry: npm
+  name: '@momo-kits/core'
+  url: https://www.npmjs.com/package/@momo-kits/core
+  install: npm install @momo-kits/core
+  official: true
+  version: 0.152.1-beta.2
+  published: '2025-11-14'
+  note: >-
+    Component Kits v2, named by MoMo's own Mini App documentation as the install
+    for Mini App v3.1. Latest published tag is a beta.
+- language: javascript
+  registry: npm
+  name: '@momo-kits/native-kits'
+  url: https://www.npmjs.com/package/@momo-kits/native-kits
+  install: npm install @momo-kits/native-kits
+  official: true
+  version: 0.162.34
+  published: '2026-08-11'
+  note: >-
+    ComposeKit — the cross-platform UI kit for MoMo Mini Apps and SDKs. The most
+    recently released first-party MoMo package on any registry.
+- language: javascript
+  registry: npm
+  name: '@momo-kits/foundation'
+  url: https://www.npmjs.com/package/@momo-kits/foundation
+  install: npm install @momo-kits/foundation
+  official: true
+  version: 0.158.1-beta.2
+  published: '2026-03-31'
+- language: javascript
+  registry: npm
+  name: '@momo-platform/component-kits'
+  url: https://www.npmjs.com/package/@momo-platform/component-kits
+  install: npm install @momo-platform/component-kits
+  official: true
+  version: 1.3.26
+  published: '2022-05-23'
+  note: >-
+    Component Kits v1, for Mini App v3.0. Superseded by @momo-kits/core; MoMo's
+    docs still list it for v3.0 Mini Apps.
+- language: javascript
+  registry: npm
+  name: '@momo-miniapp/cli'
+  url: https://www.npmjs.com/package/@momo-miniapp/cli
+  install: npm i @momo-miniapp/cli -g
+  official: true
+  version: null
+  published: null
+  note: >-
+    Probed registry.npmjs.org/@momo-miniapp/cli on 2026-08-26 and got HTTP 404 —
+    the package is NOT on the public npm registry. MoMo's own installation page
+    tells developers to copy an "NPM Configuration" out of the Mini App
+    dashboard before installing, so the scope resolves against a private,
+    credentialed registry. Version and release date are therefore unreadable
+    without a Mini App Center account; the docs' own changelog stops at 0.0.79
+    (19 May 2022).
+absent:
+  note: >-
+    Searched and found NO first-party MoMo package on these registries.
+  registries:
+  - pypi
+  - rubygems
+  - nuget
+  - pkg.go.dev
+  - crates.io
+third_party_note: >-
+  npm and Packagist carry a long tail of community MoMo wrappers (momo-vn,
+  @nodepay/momo, @vn-payment/momo, phpviet/omnipay-momo, boolfly/module-momo-wallet
+  and others). None are first-party and none are listed here. Note also that many
+  "momo" packages on public registries wrap MTN MoMo (Africa), a different company.

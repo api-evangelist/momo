@@ -1,0 +1,122 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/payment/api/result-handling/notification/,
+  https://developers.momo.vn/v3/docs/business-page/user-activities/user-activities-list/,
+  https://developers.momo.vn/v3/docs/business-page/user-activities/retry-mechanism/,
+  https://developers.momo.vn/v3/docs/business-page/user-activities/implement-condition/
+note: >-
+  MoMo publishes NO AsyncAPI document, no event catalog in a machine-readable
+  format, and no streaming surface — searched developers.momo.vn (212-URL
+  sitemap), github.com/momo-wallet, and probed /asyncapi.json,
+  /.well-known/* on every host. What it does publish is two real, documented
+  server-to-server callback surfaces, captured here as a webhook catalog. This
+  is a Webhooks artifact, not an AsyncAPI one, and it is typed that way in
+  apis.yml on purpose.
+surfaces:
+- id: aio-ipn
+  name: AIO v2 Instant Payment Notification (IPN)
+  api: momo:aio-payment-gateway
+  direction: MoMo -> merchant
+  subscription: >-
+    Per-request, not per-account: the merchant supplies an `ipnUrl` in the
+    create/pay request body. There is no webhook registration console and no
+    endpoint management API.
+  transport: HTTPS POST
+  content_type: application/json
+  expected_response: HTTP 204 No Content, within 15 seconds
+  signature:
+    field: signature
+    algorithm: HMAC-SHA256
+    verification_required: true
+    note: >-
+      MoMo instructs merchants to validate the IPN signature AND to cross-check
+      partnerCode, orderId and amount against their own database before acting.
+  url_constraints: >-
+    The ipnUrl must be a path only — no query parameters, no special characters,
+    no unicode, no spaces.
+  redirect_companion:
+    method: GET
+    field: redirectUrl
+    note: >-
+      A browser redirect with query parameters is delivered alongside IPN. It is
+      a user-agent event, not a server event, and MoMo warns it can be lost when
+      the user closes the browser — which is the stated reason IPN exists.
+  payload_fields:
+  - partnerCode
+  - orderId
+  - requestId
+  - amount
+  - orderInfo
+  - orderType
+  - transId
+  - resultCode
+  - message
+  - payType
+  - responseTime
+  - extraData
+  - signature
+  event_semantics:
+    resultCode_0: Transaction succeeded
+    resultCode_9000: Transaction authorized successfully (awaiting capture or cancel)
+    resultCode_other: Transaction failed — see errors/momo-error-codes.yml
+  caveat: >-
+    MoMo states explicitly that it will NOT use the merchant's IPN response to
+    refund a transaction, for cash-flow and balance-reconciliation reasons. A
+    non-2xx IPN response does not reverse anything.
+  retry_policy: not-published
+  docs: https://developers.momo.vn/v3/docs/payment/api/result-handling/notification/
+- id: business-page-user-activities
+  name: Business Page user-activity events
+  api: momo:business-page-openapi
+  direction: MoMo -> partner
+  subscription: A partner-registered callback URL, registered with MoMo (not self-serve).
+  transport: HTTPS
+  event_count: 7
+  events:
+  - code: VIEW
+    source: Business Page
+    description: A user opened the page.
+  - code: CLICK_ON_CTA
+    source: Business Page
+    description: A user tapped one of the page's main call-to-action buttons.
+  - code: SUBSCRIBE
+    source: Business Page
+    description: A user followed the page.
+  - code: UNSUBSCRIBE
+    source: Business Page
+    description: A user unfollowed the page.
+  - code: REVIEW_POST
+    source: Ratings & reviews
+    description: A user posted a rating or review.
+  - code: UPDATE_POST
+    source: Posts
+    description: A post's status changed.
+  - code: COMMENT_POST
+    source: Posts
+    description: A user interacted with a post — like, comment, share, or reply to another user's comment.
+  retry_policy:
+    published: true
+    schedule: [30 seconds, 5 minutes, 15 minutes]
+    retry_counter: >-
+      Redelivered events carry the same content plus a count of how many times
+      the event has been retried.
+    failure_terminal: >-
+      If the partner's receiver is still not responding after the retry schedule
+      is exhausted, MoMo stops sending events and marks the subscription
+      inactive — the partner must reactivate it.
+    docs: https://developers.momo.vn/v3/docs/business-page/user-activities/retry-mechanism/
+not_published:
+  asyncapi_spec: false
+  event_schemas: >-
+    No JSON Schema or machine-readable payload definition for either surface —
+    payload fields are documented in HTML tables only.
+  streaming: >-
+    No WebSocket, SSE, Kafka, webhook-replay or event-history API on any MoMo
+    surface.
+  webhook_management_api: >-
+    No API to create, list, rotate or delete callback endpoints. AIO endpoints
+    are per-request; Business Page endpoints are registered with MoMo out of band.
+  signing_key_rotation: >-
+    The IPN signature reuses the merchant's secretKey; no separate webhook signing
+    secret and no rotation procedure is documented.

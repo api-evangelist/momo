@@ -1,0 +1,220 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/payment/api/result-handling/idempotency/,
+  https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/,
+  https://developers.momo.vn/v3/docs/payment/api/result-handling/notification/,
+  https://developers.momo.vn/v3/docs/payment/api/payment-api/confirm/,
+  https://developers.momo.vn/v3/docs/payment/api/payment-api/refund/,
+  https://developers.momo.vn/v3/docs/voucher-distribution/integration-documentation/
+api: momo:aio-payment-gateway
+note: >-
+  Cross-cutting runtime semantics for the MoMo AIO v2 payment gateway, read from
+  MoMo's own documentation. Where a convention differs on the Business Page,
+  Voucher Distribution or Mini App Open API it is called out explicitly — these
+  four surfaces do not share conventions.
+auth_style:
+  summary: HMAC-SHA256 request signature over an a-z ordered field string, plus partnerCode/accessKey.
+  detail: authentication/momo-authentication.yml
+
+idempotency:
+  supported: true
+  since: Payment gateway version 2.1 and up
+  mechanism: body-field
+  key_field: requestId
+  header: null
+  applies_to: All POST requests of AIO v2
+  key_format: >-
+    Any sufficiently random unique string; MoMo recommends UUID v4.
+  key_scope: Unique to the company account
+  retention: Minimum 31 days after first submission
+  duplicate_behaviour: >-
+    A duplicate requestId sent while the first request is still in flight returns
+    HTTP 422 Unprocessable Entity with resultCode 7000 ("request already
+    processed or in progress"). Once the first request has reached a terminal
+    state (a code marked Final Status = Yes), replaying the same requestId
+    returns that same terminal result rather than repeating the action.
+  non_terminal_replay: >-
+    Codes NOT marked Final Status return resultCode 40 "Duplicated requestId" on
+    replay — so the guarantee is "never act twice", not "always return the
+    original response".
+  worked_example: >-
+    MoMo documents a create-payment request that times out after the server
+    captured; retrying with the same requestId returns HTTP 201 with the captured
+    payment details and does not capture again.
+  docs: https://developers.momo.vn/v3/docs/payment/api/result-handling/idempotency/
+  caveat: >-
+    orderId is a SEPARATE uniqueness constraint from requestId. Duplicated
+    orderId is resultCode 41 and is not an idempotency mechanism — a refund must
+    carry a NEW orderId different from the original purchase's orderId while
+    still using a fresh requestId.
+
+reversibility:
+  grade: verified
+  write_surface: true
+  summary: >-
+    MoMo publishes two distinct reversal paths — cancel-before-capture on an
+    authorised two-step payment, and refund (full or partial) on a captured one —
+    and states a time bound on the refund path. It does not publish a hard refund
+    deadline; what it publishes is an age threshold at which refunds start
+    failing and need retry, which is recorded below exactly as written.
+  operations:
+  - action: cancel
+    operation: POST /v2/gateway/api/confirm with requestType=cancel
+    applies_to: >-
+      A transaction in resultCode 9000 (Authorized) — reachable only on direct
+      credit card and MoMo wallet payments created with autoCapture/Capture set
+      to false.
+    effect: >-
+      Releases the hold and returns the money held from MoMo to the user's card.
+      The MoMo-side transaction completes with Failed status.
+    window: >-
+      Before capture. MoMo does not publish a maximum authorisation hold
+      duration, but documents that its own timeout handler may cancel an
+      authorised transaction (resultCode 1003, "Transaction cancelled after
+      successfully authorized... due to timeout handlers"), so the window is
+      finite and controlled by MoMo, not stated to the merchant.
+    window_stated: partial
+    docs: https://developers.momo.vn/v3/docs/payment/api/payment-api/confirm/
+  - action: capture
+    operation: POST /v2/gateway/api/confirm with requestType=capture
+    note: The forward half of the same two-step operation; included so the pair is legible.
+    docs: https://developers.momo.vn/v3/docs/payment/api/payment-api/confirm/
+  - action: refund
+    operation: POST /v2/gateway/api/refund
+    applies_to: A successfully captured payment transaction, identified by MoMo's transId.
+    partial: true
+    effect: Returns funds to the payer; partial refunds are supported down to per-item transGroup entries for Buy Now Pay Later.
+    window: >-
+      No expiry deadline is published. MoMo states that for a payment processed
+      MORE THAN ONE MONTH ago a failed refund (resultCode 1080) should be retried
+      after about an hour, and that a refund can be rejected outright as
+      ineligible (resultCode 1088) with the reason available only from MoMo.
+      Amount bounds ARE published: minimum 1,000 VND (10,000 VND for local ATM
+      card), maximum 50,000,000 VND (30,000,000 VND for tokenisation).
+    window_stated: partial
+    requires_new_order_id: true
+    docs: https://developers.momo.vn/v3/docs/payment/api/payment-api/refund/
+  - action: query-refund
+    operation: POST /v2/gateway/api/refund/query
+    effect: Reads back every refund attempt against an order, per item, with its own resultCode.
+    docs: https://developers.momo.vn/v3/docs/payment/api/payment-api/refund/
+  - action: delete-token
+    operation: POST /v2/gateway/api/tokenization/delete
+    effect: Revokes a stored payment token created by the account-binding flow.
+    window: No time bound published.
+    window_stated: false
+  - action: pause-cancel-subscription
+    operation: POST /v2/gateway/api/subscription/manage
+    effect: Pauses, cancels or reactivates a subscription token.
+    window: No time bound published.
+    window_stated: false
+  not_reversible:
+  - >-
+    Disbursement (POST /v2/gateway/api/disbursement/pay, batch/pay). MoMo
+    publishes no reversal, recall or clawback operation for money paid out to a
+    wallet or bank account. An agent must treat disbursement as one-way.
+  agent_guidance: >-
+    Before acting: a payment created with autoCapture=false can be taken back
+    with confirm/cancel at zero cost; a captured payment can be taken back with
+    refund but is subject to amount bounds and MoMo-side eligibility; a
+    disbursement cannot be taken back at all.
+
+dry_run_mode:
+  supported: false
+  note: >-
+    No dry-run, simulate or validate-only mode is documented on any MoMo API.
+    The substitute is the full sandbox at test-payment.momo.vn with its own
+    credentials and test instruments — see sandbox/momo-sandbox.yml.
+
+pagination:
+  documented: false
+  note: >-
+    The AIO v2 gateway has no list endpoints, so pagination does not arise. The
+    Business Page OpenAPI has list operations (get page list, get post list) but
+    MoMo does not publish a pagination convention for them in the public docs.
+
+versioning:
+  style: url-path
+  aio_current: v2 (paths under /v2/gateway/api/), documented as "payment gateway version 2.1 and up"
+  open_platform_current: v1 (https://{host}/gateway/open/{version}/{api}/{restfulPath})
+  business_page: v1 and v2 paths both appear in the docs (/api/v1/..., /api/v2/...)
+  voucher: v1 (/v1/merchants/{partnerId}/campaigns)
+  negotiation: None. The version is in the path; there is no version header or Accept negotiation.
+  deprecation_signal: >-
+    There is no Sunset or Deprecation header, and no deprecation policy page.
+    The only in-band signal is resultCode 12, "Unsupported API version for this
+    request... the current version is no longer in support" — i.e. a caller
+    learns a version is dead by being refused, at runtime.
+
+error_envelope:
+  format: vendor-numeric (NOT RFC 9457)
+  code_field: resultCode
+  message_field: message
+  detail: errors/momo-error-codes.yml
+
+rate_limit_signaling:
+  headers: none-published
+  detail: rate-limits/momo-rate-limits.yml
+
+request_id_tracing:
+  aio:
+    field: requestId (body)
+    also: orderId (merchant transaction id), transId (MoMo transaction id), responseTime (epoch ms)
+    note: >-
+      requestId doubles as the idempotency key and the correlation id — there is
+      no separate trace header.
+  voucher:
+    header: X-Request-Id
+    format: UUID, unique per request, required on every call
+  open_platform:
+    header: M-Timestamp
+    note: Millisecond-accurate request timestamp, required and signed.
+
+metadata_and_expansion:
+  extra_data:
+    field: extraData
+    encoding: Base64-encoded string echoed back on the response and on the IPN callback
+    note: The only merchant-controlled metadata channel in the AIO payload.
+  field_expansion: Not supported.
+  sparse_fields:
+    note: >-
+      The Mini App Open API get-user endpoint takes a `fields` query parameter
+      (e.g. fields=name,phone,address), which is a sparse-fieldset convention.
+
+timeouts:
+  client_minimum: 30 seconds on every AIO API call
+  exception: POST /v2/gateway/api/tokenization/pay — 10 seconds
+  ipn_response_deadline: 15 seconds for the merchant to answer MoMo's IPN
+  source: https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/
+
+content_negotiation:
+  request: application/json; charset=UTF-8
+  response: application/json
+  method: POST for every AIO v2 operation, including reads (query, refund/query)
+  language: >-
+    A `lang` request field (vi|en) selects the language of the returned message
+    string. There is no Accept-Language negotiation.
+
+identifiers:
+  order_id:
+    owner: merchant
+    regex: ^[0-9a-zA-Z]([-_.]*[0-9a-zA-Z]+)*$
+    rules:
+    - Must be unguessable
+    - Should stay under 64 bytes
+    - Must not reference sensitive information, especially customer data
+  trans_id:
+    owner: MoMo
+    type: numeric, unique across the MoMo system
+  request_id:
+    owner: merchant
+    type: string(50), unique per request, UUID v4 recommended
+
+related:
+  errors: errors/momo-error-codes.yml
+  lifecycle: lifecycle/momo-lifecycle.yml
+  authentication: authentication/momo-authentication.yml
+  rate_limits: rate-limits/momo-rate-limits.yml
+  webhooks: asyncapi/momo-webhooks.yml
+  sandbox: sandbox/momo-sandbox.yml

@@ -1,0 +1,86 @@
+generated: '2026-08-26'
+method: searched
+source: https://developers.momo.vn/v3/docs/payment/api/result-handling/resultcode/
+api: momo:aio-payment-gateway
+note: >-
+  MoMo does not publish a separate acquirer decline-code table the way a card
+  acquirer does. Declines are expressed inside the same numeric `resultCode`
+  registry as every other outcome (see errors/momo-error-codes.yml); this file
+  isolates the subset that means "the payment was refused" so an agent can tell
+  a decline apart from a malformed request or a MoMo outage. Every entry here is
+  copied verbatim from MoMo's List Result Codes page — nothing is inferred.
+  MoMo does NOT publish an issuer/scheme decline mapping (no ISO 8583 response
+  codes, no card-network decline reasons), so for ATM and credit card payments
+  the underlying issuer reason is collapsed into 1002.
+envelope:
+  field: resultCode
+  message_field: message
+  terminal_marker: 'Final Status = Yes'
+  buyer_masking: >-
+    MoMo does not document which codes are shown to the end user versus held
+    back from them; several entries instruct the merchant to "contact MoMo for
+    the restriction details", which implies the reason is deliberately not
+    exposed to the merchant either.
+decline_code_count: 10
+decline_codes:
+- code: 1001
+  meaning: Transaction failed due to insufficient funds.
+  class: funding
+  action: Prompt the user to top up or choose another payment method. Terminal.
+- code: 1002
+  meaning: Transaction rejected by the issuers of the payment methods.
+  class: issuer
+  action: >-
+    Offer another payment method. This is the catch-all for issuer/scheme
+    declines on ATM and credit card payments — MoMo does not surface the
+    underlying issuer reason code.
+- code: 1003
+  meaning: Transaction cancelled after successfully authorized.
+  class: reversal
+  action: >-
+    Cancelled by the merchant, or by MoMo's timeout handler on an authorised
+    two-step payment. Mark the transaction failed.
+- code: 1004
+  meaning: Transaction failed because the amount exceeds daily/monthly payment limit.
+  class: limit
+  action: Mark failed and retry on a later day, or route to another instrument.
+- code: 1006
+  meaning: Transaction failed because user has denied to confirm the payment.
+  class: user
+  action: Treat as a user cancel; send another payment request if they retry.
+- code: 1007
+  meaning: Transaction rejected due to inactive or nonexistent user's account.
+  class: account
+  action: The wallet must be active/verified before retrying.
+- code: 1026
+  meaning: Transaction restricted due to promotion rules.
+  class: policy
+  action: Contact MoMo for the restriction details.
+- code: 4001
+  meaning: Transaction rejected because the user account is being restricted.
+  class: account
+  action: Contact MoMo for the restriction details of that user account.
+- code: 4002
+  meaning: Transaction rejected because the user account has not been verified by C06.
+  class: kyc
+  action: >-
+    The user must complete NFC biometric verification against the Vietnamese
+    national ID database (C06, Ministry of Public Security) before they can be
+    authorised. This is a Vietnam-specific regulatory decline with no analogue
+    in card networks.
+- code: 4100
+  meaning: Transaction failed because user has failed to login.
+  class: authentication
+  action: Terminal. Send another payment request if the user retries.
+refund_declines:
+- code: 1080
+  meaning: Refund attempt failed during the processing.
+  action: >-
+    Check the original orderId/transId, then retry later — MoMo recommends
+    waiting about an hour when the original payment is older than one month.
+- code: 1081
+  meaning: Refund rejected. The original transaction might have been refunded.
+  action: Check whether it was already refunded, or whether the amount exceeds the refundable balance.
+- code: 1088
+  meaning: Refund rejected. The original payment transaction is ineligible to be refunded.
+  action: Contact MoMo for the restriction details.

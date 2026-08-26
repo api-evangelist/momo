@@ -1,0 +1,160 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  postman/ (14 first-party Postman collections, 67 requests) and the
+  operation reference pages under
+  https://developers.momo.vn/v3/docs/payment/api/ — MoMo publishes no OpenAPI,
+  so there are no $ref links to walk. Every entity and field below appears in a
+  MoMo-published request or response body; nothing is inferred from naming.
+note: >-
+  MoMo's payment API is flat and identifier-driven rather than resource-oriented.
+  There are no GET-by-id endpoints and no nested resource paths — every operation
+  is a POST to a verb-shaped path, and entities are related by carrying each
+  other's identifiers in the body. The graph below is therefore a graph of
+  IDENTIFIER references, which is exactly what an agent needs in order to chain
+  calls correctly.
+id_conventions:
+  partnerCode:
+    owner: MoMo
+    description: The merchant's unique identity. Present on every request and response.
+    example_shape: MOMOBKUN20180529
+  orderId:
+    owner: merchant
+    description: Merchant transaction identifier. One orderId maps to one MoMo transId.
+    regex: ^[0-9a-zA-Z]([-_.]*[0-9a-zA-Z]+)*$
+    constraints: [unguessable, under 64 bytes, must not encode customer data]
+  requestId:
+    owner: merchant
+    description: Unique per request; doubles as the idempotency key. UUID v4 recommended. Max 50 chars.
+  transId:
+    owner: MoMo
+    type: Long
+    description: MoMo's transaction identifier, returned once a purchase succeeds and used as the handle for refunds.
+  itemId:
+    owner: merchant
+    description: Line-item identifier inside transGroup, used for per-item Buy Now Pay Later refunds.
+  momoCampaignId:
+    owner: MoMo
+    description: Campaign identifier on the Voucher Distribution API.
+entities:
+- name: PaymentRequest
+  created_by: POST /v2/gateway/api/create
+  key: orderId
+  fields: [partnerCode, partnerName, storeId, requestType, ipnUrl, redirectUrl, orderId, orderInfo, amount, lang, autoCapture, extraData, requestId, signature]
+  produces: [payUrl, deeplink, qrCodeUrl, shortLink]
+- name: Transaction
+  key: transId
+  also_keyed_by: orderId
+  fields: [partnerCode, orderId, requestId, amount, transId, resultCode, message, responseTime, payType, orderType, extraData, signature]
+  states: 1000 initiated -> 9000 authorized -> 0 successful (or a terminal failure)
+- name: RefundRequest
+  created_by: POST /v2/gateway/api/refund
+  key: orderId (a NEW orderId, distinct from the original purchase)
+  fields: [partnerCode, orderId, requestId, amount, transId, lang, description, transGroup, signature]
+- name: RefundItem
+  container: transGroup
+  fields: [itemId, amount, transId, refundTransId, resultCode, message]
+- name: PaymentToken
+  created_by: POST /v2/gateway/api/tokenization/bind
+  intermediate: callbackToken (AES-wrapped, exchanged for the durable token)
+  operations: [tokenization/pay, tokenization/cbQuery, tokenization/delete]
+- name: SubscriptionToken
+  created_by: POST /v2/gateway/api/subscription/create
+  operations: [subscription/pay, subscription/manage (pause/cancel/reactivate), subscription/cbQuery]
+- name: Disbursement
+  created_by: POST /v2/gateway/api/disbursement/pay
+  targets: [wallet, bank account]
+  companions: [disbursement/verify (check wallet status), disbursement/balance]
+- name: DisbursementBatch
+  created_by: POST /v2/gateway/api/disbursement/batch/create
+  operations: [batch/query, batch/pay]
+- name: IPNCallback
+  direction: MoMo -> merchant
+  fields: [orderType, amount, partnerCode, orderId, extraData, signature, transId, responseTime, resultCode, message, payType, requestId, orderInfo]
+  detail: asyncapi/momo-webhooks.yml
+- name: Campaign
+  api: momo:voucher-distribution
+  key: momoCampaignId
+  created_by: POST /v1/merchants/{partnerId}/campaigns
+  fields: [type, id, name, description, logoURL, bannerURL, startAt, endAt, status]
+- name: VoucherRedemption
+  api: momo:voucher-distribution
+  fields: [voucherCode, userPhoneNumber, momoTransactionId, partnerTransactionId, redeemStatus, saleInfo]
+- name: SaleInfo
+  container: VoucherRedemption
+  fields: [posId, posName, tranDate, originalAmount, serviceCharge, serviceChargeAmount, shipFeeAmount, vatAmount, billAmount, discountAmount, totalAmount, paymentMethod]
+  computed:
+  - billAmount = originalAmount + serviceChargeAmount + shipFeeAmount + vatAmount
+  - totalAmount = billAmount - discountAmount
+  enums:
+    paymentMethod: [MOMOSCANNER, MOMOQR, CASH, CREDIT_CARD, VIETQR]
+- name: BusinessPage
+  api: momo:business-page-openapi
+  operations: [get page list, get page detail, get page images, get page opening times, get page store list, get page utilities, get page ambiences, update variants of each]
+- name: Post
+  api: momo:business-page-openapi
+  belongs_to: BusinessPage
+  operations: [get post list, social post interactions]
+- name: UserSegment
+  api: momo:business-page-openapi
+  belongs_to: BusinessPage
+  used_by: MessageTemplate delivery
+relationships:
+- from: PaymentRequest
+  to: Transaction
+  type: has_one
+  via: orderId
+- from: Transaction
+  to: RefundRequest
+  type: has_many
+  via: transId
+- from: RefundRequest
+  to: RefundItem
+  type: has_many
+  via: transGroup[].itemId
+- from: Transaction
+  to: IPNCallback
+  type: has_many
+  via: orderId + requestId
+- from: PaymentRequest
+  to: PaymentToken
+  type: has_one
+  via: callbackToken (tokenisation binding flow only)
+- from: PaymentToken
+  to: Transaction
+  type: has_many
+  via: tokenization/pay
+- from: SubscriptionToken
+  to: Transaction
+  type: has_many
+  via: subscription/pay
+- from: DisbursementBatch
+  to: Disbursement
+  type: has_many
+  via: batch items
+- from: Campaign
+  to: VoucherRedemption
+  type: has_many
+  via: momoCampaignId
+- from: VoucherRedemption
+  to: SaleInfo
+  type: has_one
+  via: saleInfo
+- from: BusinessPage
+  to: Post
+  type: has_many
+  via: page id
+- from: BusinessPage
+  to: UserSegment
+  type: has_many
+  via: page id
+money:
+  currency: VND
+  representation: integer minor-unit-free (VND has no subunit); amount is a Long
+  bounds_published:
+    refund_min: 1000 VND (10000 VND for local ATM card)
+    refund_max: 50000000 VND (30000000 VND for tokenisation)
+time:
+  format: UNIX timestamp in milliseconds
+  fields: [responseTime, startAt, endAt, tranDate, createdTime, expiredTime]
+render: null

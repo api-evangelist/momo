@@ -1,0 +1,121 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/payment/api/result-handling/resultcode/,
+  https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/,
+  https://developers.momo.vn/v3/docs/payment/onboarding/launch-and-reports/,
+  https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/mini-api/changelog/
+note: >-
+  MoMo publishes API versions in the URL path but no lifecycle policy of any
+  kind. This file records what exists and, deliberately, what does not — an
+  honest absence is the finding.
+versioning:
+  style: url-path
+  surfaces:
+  - api: momo:aio-payment-gateway
+    current: v2
+    path_prefix: /v2/gateway/api
+    documented_as: 'payment gateway version 2.1 and up (supports idempotency)'
+    predecessor: >-
+      A v1 gateway existed (the momo-wallet/payment README still links
+      developers.momo.vn/#/docs/aio and #/docs/error_code, the retired v1/v2 docs
+      site). No migration guide is published on the current site.
+  - api: momo:mini-app-open-api
+    current: v1
+    path_prefix: /gateway/open/v1
+    note: 'MoMo''s own docs state the URL template supports "v1 or v2"; only v1 is documented.'
+  - api: momo:business-page-openapi
+    current: v1 and v2 paths both appear (/api/v1/..., /api/v2/...)
+  - api: momo:voucher-distribution
+    current: v1
+    path_prefix: /v1/merchants
+  header_negotiation: none
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  in_band_signal:
+    code: 12
+    message: Unsupported API version for this request.
+    remediation_text: >-
+      "Please upgrade to our latest version of payment gateway as the current
+      version is no longer in support."
+    assessment: >-
+      This is the ONLY deprecation signal MoMo publishes, and it fires at runtime
+      after the version has already been withdrawn. A caller cannot discover
+      ahead of time that a version is scheduled to end.
+  deprecated_operations:
+  - path: /v2/gateway/api/collection-link
+    note: >-
+      Superseded by collection-link-v2; both remain documented, with no notice
+      period stated on either page.
+  - path: /v2/gateway/api/disbursement
+    note: >-
+      Superseded by disbursement-v2 and bulk-disbursement-v2; the earlier pages
+      remain in the sitemap.
+  - page: /docs/payment/api/buynowpaylater/buy-now-pay-later-old/
+    note: MoMo's own URL slug marks this reference "old"; no sunset date is given.
+status_page:
+  published: false
+  probes:
+  - url: https://status.momo.vn
+    status: 0
+    result: DNS does not resolve
+  - url: https://momo.statuspage.io
+    status: 200
+    result: 'Statuspage responds "Momo Status - Page Inactive" — a claimed page that serves nothing'
+  assessment: >-
+    No status page, no uptime history, no incident feed. For a payment gateway
+    processing a national wallet this is the largest single operational gap in
+    the profile. No StatusPage pointer is emitted in apis.yml, because there is
+    nothing to point at.
+sla:
+  published: false
+  note: >-
+    No availability target, latency target, or support-response commitment is
+    published on the public developer surface. Merchant-facing commitments, if
+    any, live in the signed merchant agreement.
+maintenance:
+  advance_notice_published: false
+  in_band_signal:
+    code: 10
+    message: System is under maintenance.
+    remediation_text: Please retry after the maintenance is over.
+  note: >-
+    Maintenance is announced in-band, at request time, via a result code. There
+    is no maintenance calendar.
+runtime_lifecycle_the_docs_DO_publish:
+  note: >-
+    MoMo publishes very little API lifecycle but a lot of TRANSACTION lifecycle,
+    which is worth separating out because an agent needs it.
+  transaction_states:
+    1000: Initiated, waiting for user confirmation
+    9000: Authorized (two-step) — proceed to capture or cancel
+    7000: Being processed by MoMo
+    7002: Being processed by the payment instrument provider
+    0: Successful
+    terminal_failures: See errors/momo-decline-codes.yml
+  token_lifecycle:
+    binding: POST /v2/gateway/api/tokenization/bind
+    revocation: POST /v2/gateway/api/tokenization/delete
+    subscription_states: POST /v2/gateway/api/subscription/manage (pause, cancel, reactivate)
+  credential_lifecycle:
+    open_platform_key_rotation: >-
+      New Mini App keys take effect automatically after 7 days (168 hours), or
+      immediately if approved in Mini App Center; a rollback to the previous keys
+      is supported. This is the only dated rotation policy MoMo publishes.
+    open_platform_token_ttl:
+      authCode: 90 days
+      accessToken: 30 minutes
+    voucher_token_ttl: 24 hours (86,400,000 ms)
+onboarding_lifecycle:
+  steps:
+  - Sign up for a merchant profile on MoMo for Business (M4B)
+  - Integrate on the test environment
+  - Complete UAT on the test environment and share results with MoMo
+  - Get the account verified
+  - Request production credentials
+  - Conduct UAT in production and request review
+  - Get approved and go live
+  source: https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/
+changelog: changelog/momo-changelog.yml

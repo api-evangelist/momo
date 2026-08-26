@@ -1,0 +1,124 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/payment/onboarding/test-instructions/,
+  https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/,
+  https://developers.momo.vn/v3/docs/payment/api/other/postman/
+api: momo:aio-payment-gateway
+note: >-
+  Every value in this file is published verbatim by MoMo on its own Test
+  Instructions page. Nothing here is invented. MoMo runs a full parallel
+  environment rather than a test-mode flag: separate host, separate credentials,
+  and a separately distributed test build of the consumer wallet app.
+environments:
+- name: test
+  host: https://test-payment.momo.vn
+  purpose: Integration, testing and debugging
+- name: production
+  host: https://payment.momo.vn
+  purpose: Live end users
+separate_credentials: true
+credential_note: >-
+  partnerCode, accessKey, secretKey and the RSA public key are DIFFERENT per
+  environment and are issued from the MoMo for Business (M4B) portal. Production
+  credentials are only released after test-environment UAT results are shared
+  with and reviewed by MoMo — there is no self-serve production key.
+key_prefixes:
+  documented: false
+  note: >-
+    Unlike card acquirers, MoMo does not use a test/live key prefix convention
+    (no sk_test_/sk_live_ equivalent). The environment is selected by the base
+    URL, not by the key, so a key cannot tell you which environment it belongs
+    to. That is a real footgun and worth stating.
+test_app:
+  name: MoMo Test App (developer build)
+  download: https://developers.momo.vn/v3/download/
+  platforms: [iOS, Android]
+  note: >-
+    The production MoMo app must be uninstalled before installing the test build.
+    On iOS the profile must be trusted under Settings > General > VPN & Device
+    Management as "ONLINE MOBILE SERVICE JOIN STOCK COMPANY".
+test_wallet:
+  phone_number: Create a new test wallet with any well-formed 10-digit Vietnamese number using a real operator prefix
+  password: '000000'
+  otp: '000000'
+  alt_otp: '0000'
+  onboarding_steps:
+  - Enter a random legitimate 10-digit phone number
+  - Enter the default OTP (0000 or 000000)
+  - Set a 6-digit password
+  - Fill in surname/name, email, gender, nationality = Vietnam
+  caveat: >-
+    MoMo documents that a newly created test account may hit user restrictions
+    during its first 24 hours.
+  ekyc: Contact MoMo if the test app demands eKYC information.
+funding:
+  bank_link:
+    recommended_bank: Agribank
+    account_number_pattern: 9704 05XX XXXX XXXX (16 digits, X = any digit)
+    steps: My Wallet > Manage Card account (or Top up) > select bank > link MoMo wallet to card > enter account number, card holder name, issue date
+  topup: Homescreen > Topup > amount > password > default OTP
+test_instruments:
+  atm_cards:
+  - name: NGUYEN VAN A
+    number: '9704 0000 0000 0018'
+    expiry: 03/07
+    otp: OTP
+    scenario: Card successful
+  - name: NGUYEN VAN A
+    number: '9704 0000 0000 0026'
+    expiry: 03/07
+    otp: OTP
+    scenario: Card locked
+  - name: NGUYEN VAN A
+    number: '9704 0000 0000 0034'
+    expiry: 03/07
+    otp: OTP
+    scenario: Not sufficient funds
+  - name: NGUYEN VAN A
+    number: '9704 0000 0000 0042'
+    expiry: 03/07
+    otp: OTP
+    scenario: Card limit
+  credit_cards:
+  - name: NGUYEN VAN A
+    number: '5200 0000 0000 1096'
+    expiry: 05/26
+    cvc: '111'
+    otp: OTP
+    scenario: Card successful
+  - name: NGUYEN VAN A
+    number: '5200 0000 0000 1104'
+    expiry: 05/26
+    cvc: '111'
+    otp: OTP
+    scenario: Card failed
+  - name: NGUYEN VAN A
+    number: '4111 1111 1111 1111'
+    expiry: 05/26
+    cvc: '111'
+    otp: none (no 3DS)
+    scenario: Card successful
+tooling:
+  postman:
+    collections: 14
+    index: postman/_index.yml
+    docs: https://developers.momo.vn/v3/docs/payment/api/other/postman/
+    note: >-
+      Each collection ships a Postman environment preloaded with MoMo's shared
+      test-merchant partnerCode, accessKey, secretKey and RSA public key. MoMo
+      labels that merchant "DO NOT USE FOR INTERNAL TEST. Merchant integrate test
+      payment."
+  demo_checkout:
+    note: MoMo links an end-to-end "Demo Checkout" and a "Demo ATM Payment" walkthrough from the Test Instructions page.
+not_published:
+  test_clocks: false
+  time_simulation: >-
+    No test clock or time-travel facility is documented — subscription and
+    tokenisation renewals cannot be fast-forwarded.
+  fixture_triggers: >-
+    No trigger/fixture API. Failure scenarios are reached by choosing the
+    matching test card, not by firing an event.
+  self_serve_signup: >-
+    Test credentials require an M4B merchant registration; there is no anonymous
+    sandbox key.

@@ -1,23 +1,198 @@
 aid: momo
-name: Momo
-description: 'Momo is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+name: MoMo
+description: 'MoMo is Vietnam''s largest mobile-money and e-wallet platform, operated
+  by Online Mobile Services Joint Stock Company (Cong ty Co phan Dich vu Di dong Truc
+  tuyen, "M_Service"), founded in 2007 and licensed by the State Bank of Vietnam for
+  e-wallet, money transfer and collection/disbursement services. Alongside the consumer
+  wallet it runs a merchant payments business whose public developer surface at developers.momo.vn
+  documents the All-in-One (AIO v2) Payment Gateway for wallet, domestic ATM card,
+  credit card, Apple Pay, Google Pay, Buy Now Pay Later, POS Quick Pay and static/dynamic
+  QR acceptance, single and batch disbursement, collection links, and tokenised one-click
+  and subscription payments. It also publishes a Business Page OpenAPI, a Voucher
+  Distribution API and a Mini App Open Platform for third-party apps embedded inside
+  the MoMo app. Integration is HMAC-SHA256 signed with RSA and AES payload encryption,
+  uses requestId-based idempotency and server-to-server IPN callbacks, and is distributed
+  as fourteen public Postman collections plus first-party PHP, Java and mobile SDKs.'
+image: https://homepage.momocdn.net/img/momo-amazone-s3-api-241029082636-638657871963540172.jpg
 url: https://raw.githubusercontent.com/api-evangelist/momo/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-26'
 modified: '2026-08-26'
 tags:
-- Company
-apis: []
+- Payments
+- Mobile Payments
+- FinTech
+- Digital Wallet
+- Payment Gateway
+- QR Payments
+- Disbursement
+- Buy Now Pay Later
+- E-commerce
+- Vietnam
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+apis:
+- aid: momo:aio-payment-gateway
+  name: MoMo All-in-One Payment Gateway (AIO v2)
+  description: 'The MoMo All-in-One (AIO v2) merchant payment gateway. One integration
+    covers MoMo e-wallet, domestic ATM card, credit card, Apple Pay, Google Pay, Buy
+    Now Pay Later, Quick Pay POS scanner, collection links and static/dynamic QR acceptance,
+    plus transaction query, two-step capture/cancel confirm, reverse and refund, tokenisation
+    (account binding and subscription) and single/batch disbursement. All calls are
+    POST JSON signed with HMAC-SHA256; results are pushed back over IPN.'
+  humanURL: https://developers.momo.vn/v3/docs/payment/guides/payment-with-aio/
+  baseURL: https://payment.momo.vn/v2/gateway/api
+  tags:
+  - Payments
+  - Payment Gateway
+  - Refunds
+  - Disbursement
+  - Tokenization
+  properties:
+  - type: Documentation
+    url: https://developers.momo.vn/v3/docs/payment/guides/payment-with-aio/
+  - type: APIReference
+    url: https://developers.momo.vn/v3/docs/payment/api/wallet/onetime/
+  - type: Postman
+    url: https://developers.momo.vn/v3/docs/payment/api/other/postman/
+  - type: Sandbox
+    url: https://developers.momo.vn/v3/docs/payment/onboarding/test-instructions/
+- aid: momo:business-page-openapi
+  name: MoMo Business Page OpenAPI
+  description: 'Server-to-server API for operating a MoMo Business Page: list and
+    read managed pages, update page detail, images, logo, opening times, utilities
+    and ambiences, publish and read posts and their comments, read ratings and reviews,
+    build customer segments, register and send customer-care and automated notification
+    messages, and pull page view/interaction/payment reports. Authenticated with a
+    Partner Id plus an X-API-KEY scoped to the permission groups granted in the MoMo
+    for Business portal.'
+  humanURL: https://developers.momo.vn/v3/docs/business-page/overall/
+  baseURL: https://business.momo.vn/api
+  tags:
+  - Business Page
+  - Messaging
+  - Content
+  - Reporting
+  properties:
+  - type: Documentation
+    url: https://developers.momo.vn/v3/docs/business-page/overall/
+  - type: GettingStarted
+    url: https://developers.momo.vn/v3/docs/business-page/start/
+- aid: momo:voucher-distribution
+  name: MoMo Voucher Distribution API
+  description: 'API for creating and distributing promotion campaigns and voucher
+    codes to MoMo users, and for reconciling redemption. Create and update campaigns,
+    upload voucher codes by file, query campaign and voucher-code status, and post
+    redemption results back to MoMo. Authenticated with clientId/clientSecret exchanged
+    for a 24-hour bearer access token; every request carries an X-Request-Id UUID.'
+  humanURL: https://developers.momo.vn/v3/docs/voucher-distribution/overall/
+  baseURL: https://business.momo.vn/api
+  tags:
+  - Vouchers
+  - Promotions
+  - Loyalty
+  properties:
+  - type: Documentation
+    url: https://developers.momo.vn/v3/docs/voucher-distribution/overall/
+  - type: GettingStarted
+    url: https://developers.momo.vn/v3/docs/voucher-distribution/integration-documentation/
+- aid: momo:mini-app-open-api
+  name: MoMo Mini App Open API
+  description: 'The M_Service Open Platform server-to-server API used by Mini Apps
+    embedded in the MoMo app. Exchange a user authorisation code for a short-lived
+    access token, read the user profile fields the user consented to share, and push
+    notifications into the MoMo app. Requests carry an OAuth 2.0-style bearer JWT
+    plus an OP-Signature (SHA256withRSA over data + M-Timestamp + openSecretKey) and
+    optional AES payload encryption under an RSA-wrapped symmetric key.'
+  humanURL: https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/api-specifications/
+  baseURL: https://openapi.momo.vn/gateway/open/v1
+  tags:
+  - Mini App
+  - Identity
+  - Notifications
+  properties:
+  - type: Documentation
+    url: https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/api-specifications/
+  - type: APIReference
+    url: https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/catalog-functions/
+  - type: Authentication
+    url: https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/open-api-security/
 common:
+- type: DomainSecurity
+  url: security/momo-domain-security.yml
 - type: Website
-  url: https://www.hiive.com/securities/momo-stock
+  url: https://www.momo.vn/
+- type: DeveloperPortal
+  url: https://developers.momo.vn/
+- type: Documentation
+  url: https://developers.momo.vn/v3/docs/payment/guides/home/
+- type: APIReference
+  url: https://developers.momo.vn/v3/docs/payment/api/wallet/onetime/
+- type: GettingStarted
+  url: https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/
+- type: Support
+  url: https://developers.momo.vn/v3/docs/app-center/technical-support/
+- type: HelpCenter
+  url: https://www.momo.vn/hoi-dap
+- type: Blog
+  url: https://www.momo.vn/blog
+- type: GitHubOrganization
+  url: https://github.com/momo-wallet
+- type: SignUp
+  url: https://business.momo.vn/
+- type: TermsOfService
+  url: https://www.momo.vn/dieu-khoan-dieu-le
+- type: PrivacyPolicy
+  url: https://www.momo.vn/chinh-sach-quyen-rieng-tu
+- type: Postman
+  url: https://developers.momo.vn/v3/docs/payment/api/other/postman/
+- type: Packages
+  url: packages/momo-packages.yml
+- type: SDKs
+  url: packages/momo-packages.yml
+- type: Authentication
+  url: authentication/momo-authentication.yml
+- type: OAuthScopes
+  url: scopes/momo-scopes.yml
+- type: Conventions
+  url: conventions/momo-conventions.yml
+- type: Idempotency
+  url: conventions/momo-conventions.yml
+- type: ErrorCatalog
+  url: errors/momo-error-codes.yml
+- type: DeclineCodes
+  url: errors/momo-decline-codes.yml
+- type: Webhooks
+  url: asyncapi/momo-webhooks.yml
+- type: Sandbox
+  url: sandbox/momo-sandbox.yml
+- type: CLI
+  url: cli/momo-cli.yml
+- type: Components
+  url: components/momo-components.yml
+- type: DataModel
+  url: data-model/momo-data-model.yml
+- type: ChangeLog
+  url: changelog/momo-changelog.yml
+- type: Lifecycle
+  url: lifecycle/momo-lifecycle.yml
+- type: Conformance
+  url: conformance/momo-conformance.yml
+- type: Compliance
+  url: conformance/momo-conformance.yml
+- type: Plans
+  url: plans/momo-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/momo-rate-limits.yml
+- type: LLMsTxt
+  url: llms/momo-llms.txt
+x-enrichment:
+  date: '2026-08-26'
+  status: enriched
+  artifacts_added: 35
+  pass: local-v1

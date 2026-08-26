@@ -1,0 +1,88 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/app-center/development-guideline/development-tools/mini-cli/overview/,
+  https://developers.momo.vn/v3/docs/app-center/development-guideline/development-tools/mini-cli/getting-started/
+name: Mini App CLI
+binary: momo-miniapp
+package: '@momo-miniapp/cli'
+scope: mini-app
+note: >-
+  MoMo ships one first-party CLI and it is for the Mini App platform, not for
+  payments — there is no CLI for the AIO v2 payment gateway, the Business Page
+  API or the Voucher Distribution API. The CLI is described by MoMo as "the
+  standard tooling baseline for the MoMo Open Platform & Mini App ecosystem",
+  built on webpack with an upgradeable runtime dependency and an official
+  plugin collection.
+install:
+  command: npm i @momo-miniapp/cli -g
+  registry: private
+  gating: >-
+    The package is NOT on the public npm registry — registry.npmjs.org returns
+    404 for @momo-miniapp/cli (probed 2026-08-26). MoMo's own instructions tell
+    the developer to open the Mini App dashboard, copy an "NPM Configuration"
+    block and run it in the terminal first, so the scope resolves against a
+    credentialed registry. The CLI cannot be installed without a Mini App Center
+    account.
+requirements:
+  node: 14+
+  npm: 6.14+
+  operating_systems:
+    macos: supported
+    linux: not supported
+    windows: not supported
+  android_env: ANDROID_HOME plus emulator/tools/tools-bin/platform-tools on PATH (React Native toolchain)
+  ios_extras: [libimobiledevice, ideviceinstaller]
+command_count: 10
+commands:
+- name: init
+  description: Initialise a new Mini App project (momo-miniapp init myApp)
+  requires_login: false
+- name: start
+  description: Start the Metro dev server
+  requires_login: false
+- name: run-android
+  description: Run the Mini App on an Android simulator or device
+  requires_login: false
+- name: run-ios
+  description: Run the Mini App on an iOS simulator or device
+  requires_login: false
+- name: install-android
+  description: Install the MoMo Platform host app on an Android target
+  requires_login: false
+- name: install-ios
+  description: Install the MoMo Platform host app on an iOS target
+  requires_login: false
+- name: build
+  description: >-
+    Create a build request on Mini App Center; accepts a build description
+    (momo-miniapp build "Add Momo payment method"). Requires the App JSON
+    downloaded from the dashboard and a committed git working tree.
+  requires_login: true
+- name: login
+  description: Log in to a Mini App Center account from the terminal
+  requires_login: true
+- name: link
+  description: Log in to a Mini App Center account via the browser
+  requires_login: true
+- name: version
+  description: Print the CLI version
+  requires_login: false
+- name: commands
+  description: List CLI commands
+  requires_login: false
+flows:
+- name: scaffold and run
+  steps:
+  - momo-miniapp init myApp
+  - cd myApp && momo-miniapp start
+  - momo-miniapp run-android (or run-ios)
+- name: publish a build
+  steps:
+  - Download the App JSON from Mini App Center > Overview and place it in the source folder
+  - Commit the working tree to git
+  - momo-miniapp login (or momo-miniapp link)
+  - momo-miniapp build "description"
+changelog: changelog/momo-changelog.yml
+changelog_note: 'Published CLI changelog stops at 0.0.79, 19 May 2022.'
+packages: packages/momo-packages.yml

@@ -1,0 +1,250 @@
+generated: '2026-08-26'
+method: searched
+source: https://developers.momo.vn/v3/docs/payment/api/result-handling/resultcode/
+api: momo:aio-payment-gateway
+format: vendor-numeric
+note: MoMo does not use RFC 9457 problem+json. Every AIO v2 response carries a numeric `resultCode` plus
+  a localised `message` (vi or en, selected by the request's `lang` field) inside the ordinary JSON response
+  body; the HTTP status carries a coarse signal only (2xx received and processed, 4xx caller error, 5xx
+  server/connection). The same resultCode vocabulary is used in synchronous responses, in the IPN callback
+  body and in refund sub-results, which is what makes it worth cataloguing as one registry.
+envelope:
+  code_field: resultCode
+  message_field: message
+  correlation_fields:
+  - requestId
+  - orderId
+  - transId
+  - responseTime
+  language_control: lang (vi|en) on the request
+  example:
+    partnerCode: MOMO
+    orderId: OD1672315832109
+    requestId: RE1672315832109
+    amount: 350000
+    transId: 2820086739
+    resultCode: 0
+    message: Successful.
+    responseTime: 1672315843986
+semantics:
+  final_status: '`Final Status` = Yes means the result is terminal and the code is idempotent: retrying
+    the same requestId returns the same terminal result. `Final Status` = No means the outcome is not
+    settled; retrying with the same requestId returns error 40 ''Duplicated requestId'' rather than repeating
+    the action.'
+  pending_codes:
+  - 7000
+  - 7002
+  - 9000
+  - 1000
+  success_codes:
+  - 0
+  authorized_code: 9000
+classes:
+  System error: MoMo-side or configuration fault; the merchant usually cannot fix it in-request.
+  Merchant error: The request itself is wrong — format, amount, duplicate identifier, ineligible refund.
+  User error: The end user or their funding instrument declined, is limited, or is unverified.
+  Pending: Not yet terminal; wait for the IPN or re-query.
+code_count: 36
+codes:
+- code: 0
+  title: Successful.
+  final_status: true
+- code: 10
+  title: System is under maintenance.
+  type: System error
+  final_status: false
+  remediation: Please retry after the maintenance is over.
+- code: 11
+  title: Access denied.
+  type: System error
+  final_status: false
+  remediation: Merchant settings issue. Please check your settings in M4B portal, or contact MoMo for
+    configurations.
+- code: 12
+  title: Unsupported API version for this request.
+  type: System error
+  final_status: false
+  remediation: Please upgrade to our latest version of payment gateway as the current version is no longer
+    in support.
+- code: 13
+  title: Merchant authentication failed.
+  type: Merchant error
+  final_status: false
+  remediation: Please check your credentials and the ones provided in M4B portal.
+- code: 20
+  title: Bad format request.
+  type: Merchant error
+  final_status: false
+  remediation: Please check the request format or any missing parameters.
+- code: 21
+  title: Request rejected due to invalid transaction amount.
+  type: Merchant error
+  final_status: false
+  remediation: Please check if the amount is irrelevant and retry a request.
+- code: 22
+  title: The transaction amount is out of range.
+  type: Merchant error
+  final_status: false
+  remediation: Please check if the amount is within the allowed range of each payment method. For capture
+    requestType, check if the capture amount match the authorized amount.
+- code: 40
+  title: Duplicated requestId.
+  type: Merchant error
+  final_status: false
+  remediation: Please retry with a different requestID.
+- code: 41
+  title: Duplicated orderId.
+  type: Merchant error
+  final_status: false
+  remediation: Please inquiry the orderId's transaction status, or retry with a different orderId.
+- code: 42
+  title: Invalid orderId or orderId is not found.
+  type: Merchant error
+  final_status: false
+  remediation: Please retry with a different orderId.
+- code: 43
+  title: Request rejected due to an analogous transaction is being processed.
+  type: Merchant error
+  final_status: false
+  remediation: Before retry, please check if another analogous transaction is being processed which restricts
+    this request.
+- code: 45
+  title: Duplicated ItemId
+  type: Merchant error
+  final_status: false
+  remediation: Please check and retry the request with unique ItemId.
+- code: 47
+  title: Request rejected due to inapplicable information in the given set of valuable data.
+  type: System error
+  final_status: false
+  remediation: Please review and retry with another request.
+- code: 98
+  title: This QR Code has not been generated successfully. Please try again later.
+  type: System error
+  final_status: true
+  remediation: Please retry with another request.
+- code: 99
+  title: Unknown error.
+  type: System error
+  final_status: true
+  remediation: Please contact MoMo for more details.
+- code: 1000
+  title: Transaction is initiated, waiting for user confirmation.
+  final_status: false
+  remediation: The transaction is still waiting for the user confirmation, the transaction state will
+    change after user confirms or cancels the payment.
+- code: 1001
+  title: Transaction failed due to insufficient funds.
+  type: Merchant error
+  final_status: true
+- code: 1002
+  title: Transaction rejected by the issuers of the payment methods.
+  type: User error
+  final_status: true
+  remediation: Please choose other payment methods.
+- code: 1003
+  title: Transaction cancelled after successfully authorized.
+  type: Merchant error
+  final_status: true
+  remediation: The transaction was canceled by merchant or MoMo system due to timeout handlers. Please
+    mark the transaction as failed.
+- code: 1004
+  title: Transaction failed because the amount exceeds daily /monthly payment limit.
+  type: User error
+  final_status: true
+  remediation: Please mark the transaction as failed, and retry another day.
+- code: 1005
+  title: Transaction failed because the url or QR code expired.
+  type: System error
+  final_status: true
+  remediation: Please send another payment request.
+- code: 1006
+  title: Transaction failed because user has denied to confirm the payment.
+  type: User error
+  final_status: true
+  remediation: Please send another payment request.
+- code: 1007
+  title: Transaction rejected due to inactive or nonexistent user's account.
+  type: System error
+  final_status: true
+  remediation: Please ensure the account status should be active/verified before retrying or contact MoMo
+    for support.
+- code: 1017
+  title: Transaction cancelled by merchant.
+  type: Merchant error
+  final_status: true
+- code: 1026
+  title: Transaction restricted due to promotion rules.
+  type: System error
+  final_status: true
+  remediation: Please contact MoMo for the restriction details.
+- code: 1080
+  title: Refund attempt failed during the processing. Please retry within a short period, preferably after
+    an hour.
+  type: Merchant error
+  final_status: true
+  remediation: Please check if the original orderId or transId used in the request is correct, then retry
+    to refund later (recommended to be in 1 hour for payment transaction that was processed longer than
+    1 month ago).
+- code: 1081
+  title: Refund rejected. The original transaction might have been refunded.
+  type: Merchant error
+  final_status: true
+  remediation: Please check if the original transaction has already been refunded, or the amount of your
+    refund request exceeds the refundable amount.
+- code: 1088
+  title: Refund rejected. The original payment transaction is ineligible to be refunded
+  type: Merchant error
+  final_status: true
+  remediation: Please contact MoMo for the restriction details.
+- code: 2019
+  title: Request rejected due to invalid orderGroupId.
+  type: Merchant error
+  final_status: true
+  remediation: Please contact MoMo for the restriction details.
+- code: 4001
+  title: Transaction rejected because the user account is being restricted.
+  type: User error
+  final_status: true
+  remediation: Please contact MoMo for the restriction details of this certain user account.
+- code: 4002
+  title: Transaction rejected because the user account has not been verified by C06.
+  type: User error
+  final_status: true
+  remediation: Users must update their biometrics via NFC to be authorized for the transaction.
+- code: 4100
+  title: Transaction failed because user has failed to login.
+  type: User error
+  final_status: true
+- code: 7000
+  title: Transaction is being processed.
+  type: Pending
+  final_status: false
+  remediation: Please wait for the transaction to be fully processed.
+- code: 7002
+  title: Transaction is being processed by the provider of the payment instrument selected.
+  type: Pending
+  final_status: false
+  remediation: Please wait for the transaction to be processed. The transaction status will be notified
+    once it's done processing.
+- code: 9000
+  title: Transaction is authorized successfully.
+  type: Pending
+  final_status: false
+  remediation: For 1-step payment, please mark this transaction as success. For 2-step payment, please
+    proceed with either capture or cancel request. For binding, please proceed to request the recurring
+    token.
+related:
+  decline_codes: errors/momo-decline-codes.yml
+  idempotency: conventions/momo-conventions.yml
+  webhooks: asyncapi/momo-webhooks.yml
+other_registries:
+- api: momo:voucher-distribution
+  source: https://developers.momo.vn/v3/docs/voucher-distribution/api-document/voucher-creation/
+  note: The Voucher Distribution API uses a different envelope again — a string `status` (SUCCESS|FAIL)
+    plus `message`, with 1000xx numeric campaign errors (100002 campaign type does not exist, 100003 invalid
+    logo URL, 100004 invalid banner URL, 100005 total voucher issued out of range) and a `formErrors`
+    object on HTTP 400.
+- api: momo:business-page-openapi
+  source: https://developers.momo.vn/v3/docs/business-page/appendices/status/
+  note: Business Page OpenAPI publishes its own status-code appendix.

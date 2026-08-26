@@ -1,0 +1,72 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/,
+  https://developers.momo.vn/v3/docs/payment/api/result-handling/notification/,
+  https://developers.momo.vn/v3/docs/business-page/user-activities/retry-mechanism/,
+  https://developers.momo.vn/v3/docs/payment/api/result-handling/resultcode/
+limit_count: 0
+note: >-
+  MoMo publishes NO rate limits. Searched all 212 developer-docs URLs plus the
+  Business Page, Voucher Distribution and Mini App Open API sections: there is no
+  requests-per-second figure, no quota, no burst allowance, no 429 status code,
+  and no X-RateLimit-*, RateLimit-* or Retry-After header documented anywhere.
+  An agent calling MoMo has no runtime signal telling it to back off, and no
+  documented number telling it how fast it may go. That absence is the finding
+  and is recorded as limit_count: 0 rather than omitted.
+  What MoMo does publish are TIMING contracts in the other direction — how long
+  the caller must be prepared to wait, and how fast the caller must answer MoMo —
+  which are captured below because they are the only runtime pacing rules an
+  integrator actually gets.
+limits: []
+response_headers:
+  rate_limit_headers: none-published
+  retry_after: none-published
+  exhaustion_status: none-published
+timing_contracts:
+- id: client-timeout-minimum
+  direction: merchant -> MoMo
+  rule: Minimum client timeout of 30 seconds on every AIO v2 API call.
+  exception: POST /v2/gateway/api/tokenization/pay — 10 seconds.
+  source: https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/
+- id: ipn-response-deadline
+  direction: MoMo -> merchant
+  rule: The merchant must answer MoMo's IPN callback with HTTP 204 within 15 seconds.
+  source: https://developers.momo.vn/v3/docs/payment/api/result-handling/notification/
+- id: business-page-event-retry
+  direction: MoMo -> partner
+  rule: >-
+    Failed user-activity event deliveries are retried after 30 seconds, 5 minutes
+    and 15 minutes, carrying a retry counter; if the receiver is still failing
+    after that the subscription is marked inactive and deliveries stop.
+  source: https://developers.momo.vn/v3/docs/business-page/user-activities/retry-mechanism/
+- id: refund-retry-guidance
+  direction: merchant -> MoMo
+  rule: >-
+    On resultCode 1080 (refund failed during processing) MoMo recommends
+    retrying "within a short period, preferably after an hour" when the original
+    payment is more than a month old.
+  source: https://developers.momo.vn/v3/docs/payment/api/result-handling/resultcode/
+concurrency_controls:
+- id: analogous-transaction-lock
+  code: 43
+  rule: >-
+    "Request rejected due to an analogous transaction is being processed" — MoMo
+    serialises similar in-flight transactions per merchant/user and refuses the
+    second. This is a concurrency limit, not a rate limit, and it is the closest
+    thing to throttling the contract exposes.
+- id: idempotency-in-flight
+  code: 7000
+  http_status: 422
+  rule: >-
+    A duplicate requestId while the first is in flight returns HTTP 422 with
+    resultCode 7000, "request already processed or in progress".
+transaction_amount_limits:
+  note: These are money limits, not request limits, but they are the only published per-call bounds.
+  refund_min_vnd: 1000
+  refund_min_vnd_local_atm: 10000
+  refund_max_vnd: 50000000
+  refund_max_vnd_tokenization: 30000000
+  user_side: resultCode 1004 signals the end user's own daily/monthly payment limit was exceeded.
+network_controls:
+  ip_allowlist: authentication/momo-authentication.yml

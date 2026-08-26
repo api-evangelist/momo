@@ -1,0 +1,183 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/payment/api/other/signature/,
+  https://developers.momo.vn/v3/docs/payment/api/result-handling/bankcode/,
+  https://developers.momo.vn/v3/docs/payment/api/result-handling/idempotency/,
+  https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/api-specifications/,
+  https://www.momo.vn/tin-tuc/tin-tuc-su-kien/momo-tao-moi-truong-thanh-toan-dam-bao-an-toan-5374,
+  https://www.momo.vn/tin-tuc/tin-tuc-su-kien/momo-dat-chung-nhan-bao-mat-quoc-te-pci-dss-282
+note: >-
+  Two different things are recorded here and they should not be confused. The
+  `standards` block is what MoMo's CONTRACT does — read from the published API
+  reference, not from marketing copy. The `compliance` block is what MoMo's own
+  newsroom states about certifications, with the first-party URL that states it.
+standards:
+- id: rfc9457
+  name: RFC 9457 Problem Details for HTTP APIs
+  conforms: false
+  evidence: >-
+    Errors are a numeric `resultCode` plus a localised `message` inside the
+    ordinary JSON body; no application/problem+json media type appears anywhere
+    in the documentation. See errors/momo-error-codes.yml.
+- id: idempotency
+  name: Idempotent POST via a client-supplied key
+  conforms: true
+  evidence: >-
+    "The API supports idempotency for safely retrying requests... To enforce
+    idempotency on REST API POST calls, use the requestId on body... requestId
+    are valid for a minimum period of 31 days after first submission." A
+    duplicate in-flight key returns HTTP 422 with resultCode 7000.
+    https://developers.momo.vn/v3/docs/payment/api/result-handling/idempotency/
+  deviation: >-
+    Carried in the request BODY, not in an Idempotency-Key header, so it does not
+    follow the IETF draft-ietf-httpapi-idempotency-key-header convention.
+- id: oauth2
+  name: OAuth 2.0
+  conforms: partial
+  evidence: >-
+    The Mini App Open Platform is documented as "based on the industry standard
+    OAuth2.0 authorization mechanism" with an authCode-for-accessToken exchange
+    (90-day authCode, 30-minute accessToken). The Voucher Distribution API uses a
+    client_credentials-shaped clientId/clientSecret -> 24h bearer exchange.
+  deviation: >-
+    No RFC 8414 authorization-server metadata, no RFC 9728 protected-resource
+    metadata, no published scope strings, non-standard token endpoint shape, and
+    the Voucher API's own header table names the header "Authentication" rather
+    than "Authorization". No /.well-known/oauth-authorization-server on any host
+    (see well-known/momo-well-known.yml).
+- id: oidc
+  name: OpenID Connect
+  conforms: false
+  evidence: No openid-configuration document on any MoMo host; no id_token, no userinfo endpoint.
+- id: jwt
+  name: JSON Web Token (RFC 7519)
+  conforms: true
+  evidence: 'MoMo describes both authCode and accessToken as JWTs: "A long-term JWT Token is provided by Open Platform..."'
+- id: hmac-request-signing
+  name: HMAC-SHA256 request signing
+  conforms: true
+  evidence: >-
+    "MoMo uses HMAC_SHA256 algorithm to generate signature. Input data includes
+    Secret Key and data, data generated with format: key1=value1&key2=value2".
+    Every AIO v2 request and the IPN callback carry a `signature` field.
+- id: rsa-pkcs8
+  name: SHA256withRSA signatures over PKCS#8 keys
+  conforms: true
+  evidence: >-
+    Open Platform: OP-Signature = Base64UrlEncode(SHA256withRSA(data +
+    M-Timestamp + openSecretKey)), with the private key decoded as PKCS8EncodedKeySpec.
+- id: pagination
+  name: Documented pagination convention
+  conforms: false
+  evidence: >-
+    No pagination parameters or response envelope are published for the Business
+    Page list operations; the payment gateway has no list operations.
+- id: rate-limit-headers
+  name: RFC 9331 / X-RateLimit response headers
+  conforms: false
+  evidence: No rate-limit headers or 429 semantics appear anywhere in the documentation.
+- id: openapi
+  name: OpenAPI
+  conforms: false
+  evidence: >-
+    No OpenAPI, Swagger, AsyncAPI, protobuf or WSDL published. Probed
+    /openapi.json, /openapi.yaml, /swagger.json, /v1/openapi.json, /api-docs,
+    /redoc and the .well-known namespace on eight MoMo hosts on 2026-08-26 —
+    all 404 except two SPA catch-alls. The nearest machine-readable artifact is
+    the set of 14 public Postman collections (postman/_index.yml).
+- id: json-schema
+  name: JSON Schema
+  conforms: false
+  evidence: No schema documents published for request, response or webhook payloads.
+domain_standards:
+- id: napas-bank-codes
+  name: NAPAS domestic bank identification codes
+  market: Vietnamese domestic payments
+  conforms: true
+  evidence: >-
+    The published Bank Codes List keys every supported bank by its NAPAS
+    six-digit BIN in the 970xxx range (970438 VietBank, 970454 SCB, 970429,
+    970421, 970425 and so on) alongside MoMo's own short code. A partner already
+    speaking NAPAS BINs needs no bespoke mapping table.
+    https://developers.momo.vn/v3/docs/payment/api/result-handling/bankcode/
+  spec_location: 'Result Handling > Bank Codes List, bank code column'
+- id: napas-test-card-range
+  name: NAPAS domestic card numbering
+  market: Vietnamese domestic payments
+  conforms: true
+  evidence: >-
+    Sandbox instruments are issued in the 9704 NAPAS domestic-card IIN range
+    (9704 0000 0000 0018 and siblings; bank-link accounts as 9704 05XX XXXX XXXX),
+    which is the Vietnamese domestic scheme's own numbering rather than an
+    invented test range.
+    https://developers.momo.vn/v3/docs/payment/onboarding/test-instructions/
+- id: vietqr
+  name: VietQR
+  market: Vietnamese QR payments
+  conforms: partial
+  evidence: >-
+    VIETQR appears as a first-class enum value of `paymentMethod` in the Voucher
+    Distribution redemption payload, alongside MOMOSCANNER, MOMOQR, CASH and
+    CREDIT_CARD — so MoMo's contract recognises VietQR-rail settlement. MoMo does
+    not publish the EMVCo/VietQR TLV payload format for its own QR codes, which
+    are handed to the merchant as an opaque qrCodeUrl.
+- id: c06-biometric-verification
+  name: Vietnam Decision 2345/QD-NHNN biometric authentication (C06 / national ID NFC)
+  market: Vietnamese e-wallet regulation
+  conforms: true
+  evidence: >-
+    resultCode 4002, "Transaction rejected because the user account has not been
+    verified by C06... Users must update their biometrics via NFC to be
+    authorized for the transaction" — the State Bank of Vietnam biometric
+    mandate surfaced as a first-class decline code in the contract, not as prose.
+    https://developers.momo.vn/v3/docs/payment/api/result-handling/resultcode/
+- id: iso-20022
+  name: ISO 20022
+  conforms: false
+  evidence: No ISO 20022 message types appear in any published MoMo payload.
+- id: fapi
+  name: FAPI
+  conforms: false
+  evidence: 'Not claimed and not applicable: MoMo is not an open-banking ASPSP surface.'
+compliance:
+  published: true
+  source_is_first_party: true
+  certifications:
+  - name: PCI DSS v4.0
+    scope: Payment card environment
+    claimed_by: MoMo newsroom
+    evidence_url: https://www.momo.vn/tin-tuc/tin-tuc-su-kien/momo-tao-moi-truong-thanh-toan-dam-bao-an-toan-5374
+    evidence_status: 200
+    note: >-
+      MoMo's own news page states it meets the ~300 requirements of PCI DSS v4.0
+      and describes itself as the first Vietnamese fintech to certify at that
+      version.
+  - name: PCI DSS Service Provider Level 1
+    scope: Payment card environment
+    claimed_by: MoMo newsroom
+    evidence_url: https://www.momo.vn/tin-tuc/tin-tuc-su-kien/momo-dat-chung-nhan-bao-mat-quoc-te-pci-dss-282
+    evidence_status: 200
+  - name: ISO/IEC 27001
+    status: stated-as-intended
+    note: >-
+      The 2016 MoMo announcement says the company "will apply the ISO 27001
+      security standard" — a forward-looking statement, recorded as such rather
+      than as a certification. No first-party page confirming an issued ISO 27001
+      or ISO 27701 certificate was found on momo.vn.
+  regulatory:
+  - regime: State Bank of Vietnam
+    basis: >-
+      "Cong ty da duoc Ngan hang Nha nuoc Viet Nam cap phep cung cap dich vu Vi
+      dien tu va Dich vu chuyen tien, thu ho/chi ho" — licensed by the State Bank
+      of Vietnam for e-wallet, money transfer and collection/disbursement services.
+    evidence_url: https://www.momo.vn/ve-chung-toi
+    evidence_status: 200
+  trust_center:
+    published: false
+    note: >-
+      No trust.momo.vn, no security.momo.vn, no compliance portal and no
+      downloadable audit report. Certification claims live in dated newsroom
+      posts. A consumer-facing safety hub exists at
+      https://www.momo.vn/an-toan-bao-mat (HTTP 200) but names no certifications
+      and is not a trust center.

@@ -1,0 +1,35 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.momo.vn/v3/docs/payment/onboarding/merchant-profile/,
+  https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/,
+  https://business.momo.vn/,
+  https://developers.momo.vn/v3/sitemap.xml (212 URLs, no pricing page)
+plan_count: 0
+currency: VND
+note: >-
+  MoMo publishes NO public pricing for any of its APIs. There is no pricing page,
+  no rate card, no merchant discount rate, no per-transaction fee schedule and no
+  tier table anywhere on momo.vn, business.momo.vn or developers.momo.vn — the
+  212-URL developer sitemap contains no pricing route, and the merchant portal is
+  a login-gated single-page app. Commercial terms are set during the MoMo for
+  Business (M4B) merchant onboarding and review process, which is a
+  contact-and-verify motion: register a merchant profile, integrate on test,
+  complete UAT, get the account verified, then request production credentials.
+  A buyer cannot price a MoMo integration before entering that process.
+  This is recorded as plan_count: 0 rather than omitted, because a documented
+  absence of published pricing is the finding.
+pricing_model_observed:
+  type: negotiated-merchant-agreement
+  evidence: >-
+    MoMo's onboarding documentation gates production access behind account
+    verification and a MoMo-side review; no self-serve checkout or plan selector
+    exists.
+free_surfaces:
+- name: Business Page
+  note: >-
+    MoMo's Business Page getting-started page offers a Business Page "mien phi"
+    (free) and routes acquisition through a hotline (1900 636 652) and
+    merchant.care@momo.vn rather than a signup flow.
+  source: https://developers.momo.vn/v3/docs/business-page/start/
+plans: []
