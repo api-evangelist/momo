@@ -13,6 +13,17 @@ description: 'MoMo is Vietnam''s largest mobile-money and e-wallet platform, ope
   the MoMo app. Integration is HMAC-SHA256 signed with RSA and AES payload encryption,
   uses requestId-based idempotency and server-to-server IPN callbacks, and is distributed
   as fourteen public Postman collections plus first-party PHP, Java and mobile SDKs.'
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://homepage.momocdn.net/img/momo-amazone-s3-api-241029082636-638657871963540172.jpg
 url: https://raw.githubusercontent.com/api-evangelist/momo/refs/heads/main/apis.yml
 x-type: company
