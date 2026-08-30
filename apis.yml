@@ -34,6 +34,17 @@ modified: '2026-08-26'
 tags:
 - Payments
 - Mobile Payments
+- Fintech
+- Digital Wallet
+- Payment Gateway
+- QR Payments
+- Disbursement
+- Buy Now Pay Later
+- E-Commerce
+- Vietnam
+tags_raw:
+- Payments
+- Mobile Payments
 - FinTech
 - Digital Wallet
 - Payment Gateway
@@ -123,6 +134,10 @@ apis:
   humanURL: https://developers.momo.vn/v3/docs/app-center/development-guideline/components-api-sdk/open-api/api-specifications/
   baseURL: https://openapi.momo.vn/gateway/open/v1
   tags:
+  - Mini App
+  - Identity
+  - Notification
+  tags_raw:
   - Mini App
   - Identity
   - Notifications
