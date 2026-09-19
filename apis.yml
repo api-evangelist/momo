@@ -54,7 +54,7 @@ tags:
 - Digital Wallet
 - Payment Gateway
 - QR Payments
-- Disbursement
+- Disbursements
 - Buy Now Pay Later
 - E-Commerce
 - Vietnam
@@ -86,6 +86,12 @@ apis:
   humanURL: https://developers.momo.vn/v3/docs/payment/guides/payment-with-aio/
   baseURL: https://payment.momo.vn/v2/gateway/api
   tags:
+  - Payments
+  - Payment Gateway
+  - Refunds
+  - Disbursements
+  - Tokenization
+  tags_raw:
   - Payments
   - Payment Gateway
   - Refunds
