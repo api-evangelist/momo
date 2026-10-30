@@ -1,4 +1,4 @@
-# Momo
+# MoMo
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,36 +64,128 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-MoMo is Vietnam's largest mobile-money and e-wallet platform, operated by Online Mobile Services
-Joint Stock Company ("M_Service"), founded in 2007 and licensed by the State Bank of Vietnam for
-e-wallet, money transfer and collection/disbursement services.
+MoMo is Vietnam's largest mobile-money and e-wallet platform, operated by Online Mobile Services Joint Stock Company (Cong ty Co phan Dich vu Di dong Truc tuyen, "M_Service"), founded in 2007 and licensed by the State Bank of Vietnam for e-wallet, money transfer and collection/disbursement services. Alongside the consumer wallet it runs a merchant payments business whose public developer surface at developers.momo.vn documents the All-in-One (AIO v2) Payment Gateway for wallet, domestic ATM card, credit card, Apple Pay, Google Pay, Buy Now Pay Later, POS Quick Pay and static/dynamic QR acceptance, single and batch disbursement, collection links, and tokenised one-click and subscription payments. It also publishes a Business Page OpenAPI, a Voucher Distribution API and a Mini App Open Platform for third-party apps embedded inside the MoMo app. Integration is HMAC-SHA256 signed with RSA and AES payload encryption, uses requestId-based idempotency and server-to-server IPN callbacks, and is distributed as fourteen public Postman collections plus first-party PHP, Java and mobile SDKs.
 
-This repository profiles the four public APIs MoMo publishes at
-[developers.momo.vn](https://developers.momo.vn/):
+**Areas:** Payments · Mobile Payments · Fintech · Digital Wallet · Payment Gateway · QR Payments · Disbursements · Buy Now Pay Later · E-Commerce · Vietnam
 
-- **All-in-One (AIO v2) Payment Gateway** — `https://payment.momo.vn/v2/gateway/api`
-- **Business Page OpenAPI** — `https://business.momo.vn/api`
-- **Voucher Distribution API** — `https://business.momo.vn/api`
-- **Mini App Open API** — `https://openapi.momo.vn/gateway/open/v1`
+## MoMo on APIs.io
 
-**MoMo publishes no OpenAPI, AsyncAPI, protobuf or WSDL.** The nearest machine-readable contract is
-a set of **14 public Postman collections** (67 requests), which MoMo links from its own docs and
-which are saved verbatim in [`postman/`](postman/). Everything else in this repository is either
-searched from MoMo's own documentation or derived from those collections; nothing is invented.
+Everything profiled for MoMo is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/momo/](https://apis.io/providers/momo/)** — or go straight to one of the APIs or properties below.
 
-Notable findings from the 2026-08-26 pass:
+### APIs (4)
 
-- **Idempotency is real and documented** — `requestId` in the request body, unique per company
-  account, honoured for at least 31 days, HTTP 422 + `resultCode` 7000 on a duplicate in flight.
-- **Reversibility is documented** — cancel-before-capture and full/partial refund, with published
-  amount bounds. **Disbursements are not reversible**; MoMo publishes no recall operation.
-- **No status page, no SLA, no deprecation policy, no rate limits.** A withdrawn API version is
-  discovered at runtime via `resultCode` 12.
-- **No `/.well-known/` documents on any host** (64 probes across 8 hosts) and **no MCP server**.
-- **PCI DSS v4.0** is claimed on MoMo's own newsroom; the first-party PHP and Java SDKs are stale
-  (untagged since 2022 and version 1.0 from 2019 respectively), while the Mini App component
-  packages on npm are actively released.
+- [MoMo All-in-One Payment Gateway (AIO v2)](https://apis.io/apis/momo/aio-payment-gateway/) — The MoMo All-in-One (AIO v2) merchant payment gateway. One integration covers MoMo e-wallet, domestic ATM card, credit card, Apple Pay, Google Pay, Buy Now…
+- [MoMo Business Page OpenAPI](https://apis.io/apis/momo/business-page-openapi/) — Server-to-server API for operating a MoMo Business Page: list and read managed pages, update page detail, images, logo, opening times, utilities and…
+- [MoMo Voucher Distribution API](https://apis.io/apis/momo/voucher-distribution/) — API for creating and distributing promotion campaigns and voucher codes to MoMo users, and for reconciling redemption. Create and update campaigns, upload…
+- [MoMo Mini App Open API](https://apis.io/apis/momo/mini-app-open-api/) — The M_Service Open Platform server-to-server API used by Mini Apps embedded in the MoMo app. Exchange a user authorisation code for a short-lived access…
 
-- https://www.momo.vn/
-- https://developers.momo.vn/
-- https://github.com/momo-wallet
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Momo Webhooks](https://apis.io/asyncapis/momo/momo-webhooks/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [MoMo AIO v2 MCP (candidate)](https://apis.io/servers/momo/momo-aio-v2-mcp-candidate/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Momo Authentication](https://apis.io/security/momo/momo-authentication/)
+- [Momo Domain Security](https://apis.io/security/momo/momo-domain-security/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Momo Scopes](https://apis.io/scopes/momo/momo-scopes/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Momo Plans Pricing](https://apis.io/plans/momo/momo-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Momo Rate Limits](https://apis.io/rate-limits/momo/momo-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.momo.vn/)
+- [Documentation](https://developers.momo.vn/v3/docs/payment/guides/home/)
+- [Getting started](https://developers.momo.vn/v3/docs/payment/onboarding/integration-process/)
+- [API reference](https://developers.momo.vn/v3/docs/payment/api/wallet/onetime/)
+- [Sign up](https://business.momo.vn/)
+- [Support](https://developers.momo.vn/v3/docs/app-center/technical-support/)
+- [Blog](https://www.momo.vn/blog)
+- [Terms of service](https://www.momo.vn/dieu-khoan-dieu-le)
+- [Privacy policy](https://www.momo.vn/chinh-sach-quyen-rieng-tu)
+- [GitHub](https://github.com/momo-wallet)
+
+## API Evangelist rating
+
+**Kin Score 47.4** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 71.4 |
+| Contract quality | 39.0 |
+| Contract governance | 18.2 |
+| Operational transparency | 26.3 |
+| Developer ergonomics | 83.3 |
+| Access clarity | 28.9 |
+
+**Agent readiness 28.4** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | documented (partial credit) |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | yes |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | na |
+
+**Regulatory alignment 35.7** — Payments
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/momo/](https://apis.io/providers/momo/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for MoMo: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/momo/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
